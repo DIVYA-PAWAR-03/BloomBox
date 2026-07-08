@@ -1,174 +1,215 @@
-"use client";
+'use client';
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { 
-  Sparkles, 
-  Layers, 
-  Gift, 
-  ArrowRight, 
-  Heart, 
-  Music, 
-  Mic 
-} from 'lucide-react';
+import { Heart, ArrowRight } from 'lucide-react';
+
+const floatingPetals = [
+  { id: 1, text: '🌸', x: '8%',  delay: 0,  duration: 22, size: '2rem' },
+  { id: 2, text: '🌹', x: '83%', delay: 3,  duration: 28, size: '1.6rem' },
+  { id: 3, text: '🌷', x: '28%', delay: 7,  duration: 25, size: '1.4rem' },
+  { id: 4, text: '🌸', x: '62%', delay: 11, duration: 30, size: '1.8rem' },
+  { id: 5, text: '🌿', x: '18%', delay: 15, duration: 26, size: '1.5rem' },
+  { id: 6, text: '🌼', x: '88%', delay: 5,  duration: 20, size: '1.7rem' },
+];
+
+const stagger = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.18 } },
+};
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.9, ease: [0.16, 1, 0.3, 1] } },
+};
 
 export default function Home() {
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.15,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
-  };
-
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 selection:bg-rose-500/30 selection:text-rose-400 overflow-x-hidden font-sans">
-      {/* Premium Navbar */}
-      <header className="fixed top-0 left-0 right-0 z-50 border-b border-zinc-900 bg-zinc-950/75 backdrop-blur-md px-6 md:px-12 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-rose-600 to-amber-500 flex items-center justify-center shadow-lg shadow-rose-500/20">
+    <div className="min-h-screen relative flex flex-col" style={{ background: '#faf6f0', color: '#44382e' }}>
+
+      {/* Ambient glow */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-0 inset-x-0 h-96 opacity-40"
+          style={{ background: 'radial-gradient(ellipse at 50% 0%, #fce7f3 0%, transparent 70%)' }} />
+        <div className="absolute top-1/3 left-1/4 w-72 h-72 rounded-full opacity-20 blur-3xl"
+          style={{ background: '#fbcfe8', animation: 'pulse 8s infinite' }} />
+        <div className="absolute top-1/2 right-1/4 w-80 h-80 rounded-full opacity-15 blur-3xl"
+          style={{ background: '#fde68a', animation: 'pulse 10s infinite 2s' }} />
+      </div>
+
+      {/* Floating petals */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+        {floatingPetals.map((p) => (
+          <motion.div
+            key={p.id}
+            className="absolute select-none"
+            style={{ left: p.x, fontSize: p.size, opacity: 0.3, filter: 'blur(0.4px)' }}
+            animate={{
+              y: ['-5vh', '110vh'],
+              x: [p.x, `calc(${p.x} + 5vw)`, `calc(${p.x} - 3vw)`, p.x],
+              rotate: [0, 360],
+            }}
+            transition={{ duration: p.duration, repeat: Infinity, delay: p.delay, ease: 'linear' }}
+          />
+        ))}
+      </div>
+
+      {/* Header */}
+      <header className="relative z-20 w-full px-8 py-5 flex items-center justify-between"
+        style={{ borderBottom: '1px solid rgba(251,207,232,0.2)' }}>
+        <div className="flex items-center gap-2.5">
+          <div className="h-9 w-9 rounded-full flex items-center justify-center shadow-sm"
+            style={{ background: 'linear-gradient(135deg, #f43f5e, #fb923c)' }}>
             <Heart className="h-4 w-4 text-white fill-white" />
           </div>
-          <span className="font-bold text-lg tracking-wider text-white bg-clip-text bg-gradient-to-r from-white to-zinc-400">
+          <span className="text-xl font-semibold tracking-wide" style={{ fontFamily: 'var(--font-cormorant, serif)', color: '#5c4a3c' }}>
             BloomBox
           </span>
         </div>
-        <Link href="/editor">
-          <ButtonWithAnimation>
-            Design Studio
-          </ButtonWithAnimation>
+        <Link href="/create">
+          <motion.button
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            className="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-medium tracking-wide text-rose-600 border border-rose-200/60 bg-white/70 hover:bg-white shadow-sm transition-colors"
+          >
+            Start Creating
+          </motion.button>
         </Link>
       </header>
 
-      {/* Hero Section */}
-      <main className="relative flex min-h-screen flex-col items-center justify-center px-6 pt-24 text-center overflow-hidden">
-        {/* Floating gradient decorative blobs */}
-        <div className="absolute top-1/4 left-1/4 -z-10 h-72 w-72 rounded-full bg-rose-500/10 blur-[80px]" />
-        <div className="absolute bottom-1/4 right-1/4 -z-10 h-72 w-72 rounded-full bg-amber-500/10 blur-[80px]" />
-
-        <motion.div 
-          variants={containerVariants}
+      {/* Hero */}
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 py-16 text-center">
+        <motion.div
+          variants={stagger}
           initial="hidden"
           animate="visible"
-          className="max-w-4xl space-y-6 z-10"
+          className="space-y-8 max-w-2xl"
         >
-          <motion.div 
-            variants={itemVariants}
-            className="inline-flex items-center gap-1.5 rounded-full border border-rose-500/20 bg-rose-500/5 px-4 py-1.5 text-xs text-rose-400 font-semibold"
-          >
-            <Sparkles className="h-3.5 w-3.5" />
-            Digital Bouquet & Gift Studio
+          {/* Badge */}
+          <motion.div variants={fadeUp} className="flex justify-center">
+            <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[11px] font-medium tracking-widest uppercase text-rose-500"
+              style={{ background: 'rgba(254,228,232,0.7)', border: '1px solid rgba(253,164,175,0.4)' }}>
+              🌸 beautiful flowers, delivered digitally
+            </span>
           </motion.div>
 
-          <motion.h1 
-            variants={itemVariants}
-            className="text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.1]"
+          {/* Big headline */}
+          <motion.h1
+            variants={fadeUp}
+            className="text-5xl sm:text-6xl lg:text-7xl font-normal leading-[1.1] tracking-tight"
+            style={{ fontFamily: 'var(--font-cormorant, serif)', color: '#44382e' }}
           >
-            Craft Digital Bouquets. <br />
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-rose-500 via-rose-400 to-amber-500">
-              Gift Real Emotions.
-            </span>
+            Send a bouquet<br />
+            <em className="not-italic font-semibold"
+              style={{ background: 'linear-gradient(135deg, #e11d48, #f97316)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              full of love.
+            </em>
           </motion.h1>
 
-          <motion.p 
-            variants={itemVariants}
-            className="mx-auto max-w-2xl text-base md:text-lg text-zinc-300 font-medium leading-relaxed"
+          {/* Subtext */}
+          <motion.p
+            variants={fadeUp}
+            className="text-base sm:text-lg leading-relaxed text-stone-500 max-w-lg mx-auto"
           >
-            Create heartfelt digital bouquets, write personal letters, and share unforgettable memories — completely free.
+            Pick flowers, choose a wrapping, write a heartfelt letter and seal it in a beautiful envelope.
+            Create a sweet unboxing experience for someone special — completely free.
           </motion.p>
 
-          <motion.div 
-            variants={itemVariants}
-            className="pt-6 flex flex-col sm:flex-row items-center justify-center gap-4"
-          >
-            <Link 
-              href="/editor" 
-              className="group flex h-12 items-center justify-center gap-2 rounded-full bg-rose-600 px-8 text-sm font-bold text-white hover:bg-rose-500 hover:scale-105 transition-all duration-300 shadow-xl shadow-rose-600/25"
-            >
-              Start Designing
-              <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+          {/* CTA */}
+          <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+            <Link href="/create">
+              <motion.button
+                whileHover={{ scale: 1.03, boxShadow: '0 8px 30px rgba(225,29,72,0.3)' }}
+                whileTap={{ scale: 0.97 }}
+                className="flex items-center gap-2.5 px-10 py-4 rounded-full text-sm font-medium text-white shadow-lg transition-all"
+                style={{ background: 'linear-gradient(135deg, #e11d48 0%, #f43f5e 100%)', boxShadow: '0 4px 20px rgba(225,29,72,0.25)' }}
+              >
+                <Heart className="h-4 w-4 fill-current" />
+                Create a BloomBox
+                <ArrowRight className="h-4 w-4" />
+              </motion.button>
             </Link>
-            
-            <a 
-              href="#concept"
-              className="flex h-12 items-center justify-center rounded-full border border-zinc-800 bg-zinc-900/40 px-8 text-sm font-semibold text-zinc-300 hover:bg-zinc-900 hover:text-white transition-colors"
-            >
-              Explore Studio
-            </a>
           </motion.div>
+        </motion.div>
+
+        {/* How it works */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+          className="mt-24 w-full max-w-3xl"
+          style={{ borderTop: '1px solid rgba(251,207,232,0.3)', paddingTop: '3rem' }}
+        >
+          <p className="text-center text-xs font-medium tracking-widest uppercase text-rose-400 mb-10">
+            How it works
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 text-left">
+            {[
+              {
+                step: '01',
+                emoji: '💐',
+                title: 'Build your bouquet',
+                desc: 'Choose a beautiful bouquet style, add flowers, leaves, wrapping paper and a ribbon.',
+              },
+              {
+                step: '02',
+                emoji: '✉️',
+                title: 'Write a letter',
+                desc: 'Pick a handwritten letter template and pour your heart into every word.',
+              },
+              {
+                step: '03',
+                emoji: '💌',
+                title: 'Share with love',
+                desc: 'Generate a free link and send it via WhatsApp, Telegram, or email. Completely free.',
+              },
+            ].map((item) => (
+              <div key={item.step} className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">{item.emoji}</span>
+                  <span className="text-xs font-medium text-rose-300 font-mono">{item.step}</span>
+                </div>
+                <h3 className="text-base font-medium" style={{ fontFamily: 'var(--font-cormorant, serif)', fontSize: '1.1rem', color: '#5c4a3c' }}>
+                  {item.title}
+                </h3>
+                <p className="text-sm text-stone-500 leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Sample flowers strip */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.2, duration: 1 }}
+          className="mt-20 flex items-center gap-4 flex-wrap justify-center"
+        >
+          {['🌹', '🌷', '🌸', '🌼', '🌻', '💐', '🪷', '🌺', '🌸', '💜'].map((emoji, i) => (
+            <motion.span
+              key={i}
+              className="text-2xl"
+              animate={{ y: [0, -6, 0] }}
+              transition={{ duration: 2.5, repeat: Infinity, delay: i * 0.2, ease: 'easeInOut' }}
+              style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))' }}
+            >
+              {emoji}
+            </motion.span>
+          ))}
         </motion.div>
       </main>
 
-      {/* Concept Feature Grid */}
-      <section id="concept" className="bg-zinc-950/80 px-6 py-24 md:px-12 border-t border-zinc-900">
-        <div className="mx-auto max-w-6xl space-y-12">
-          <div className="text-center space-y-4">
-            <h2 className="text-2xl md:text-4xl font-bold tracking-tight text-white">
-              Studio Feature Highlights
-            </h2>
-            <p className="mx-auto max-w-xl text-sm text-zinc-400 font-medium">
-              Create rich interactive gifting experiences with our advanced canvas features.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="rounded-2xl border border-zinc-900 bg-zinc-900/20 p-6 space-y-4 hover:border-zinc-800 transition-colors">
-              <div className="h-10 w-10 rounded-xl bg-rose-500/10 flex items-center justify-center text-rose-500">
-                <Layers className="h-5 w-5" />
-              </div>
-              <h3 className="text-lg font-bold text-white">Advanced Canvas Engine</h3>
-              <p className="text-xs text-zinc-400 font-medium leading-relaxed">
-                Position, resize, rotate, and layer assets with infinite canvas zoom, smart guidelines alignment, and 20px grid snapping.
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-zinc-900 bg-zinc-900/20 p-6 space-y-4 hover:border-zinc-800 transition-colors">
-              <div className="h-10 w-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500">
-                <Music className="h-5 w-5" />
-              </div>
-              <h3 className="text-lg font-bold text-white">Atmospheric Soundtracks</h3>
-              <p className="text-xs text-zinc-400 font-medium leading-relaxed">
-                Select from background tracks (Spotify, YouTube, custom uploads) to accompany the gift and play automatically on open.
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-zinc-900 bg-zinc-900/20 p-6 space-y-4 hover:border-zinc-800 transition-colors">
-              <div className="h-10 w-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
-                <Gift className="h-5 w-5" />
-              </div>
-              <h3 className="text-lg font-bold text-white">Bundled Gift Addons</h3>
-              <p className="text-xs text-zinc-400 font-medium leading-relaxed">
-                Add premium chocolates, plush teddy bears, and personalized photos or letters inside the bouquet packaging wrapper.
-              </p>
-            </div>
-          </div>
+      {/* Footer */}
+      <footer className="relative z-10 w-full py-8 text-center text-xs text-stone-400 border-t"
+        style={{ borderColor: 'rgba(251,207,232,0.15)', background: 'rgba(255,255,255,0.3)' }}>
+        <div className="flex items-center justify-center gap-2 mb-2">
+          <Heart className="h-3.5 w-3.5 text-rose-400 fill-current" />
+          <span className="font-medium" style={{ fontFamily: 'var(--font-cormorant, serif)', color: '#7c6959', fontSize: '0.9rem' }}>
+            BloomBox
+          </span>
         </div>
-      </section>
-
-      {/* Premium Footer */}
-      <footer className="border-t border-zinc-900 bg-zinc-950 py-12 text-center text-xs text-zinc-600">
-        <p>© 2026 BloomBox Gifting Studio. All rights reserved.</p>
+        <p>© 2026 BloomBox — Send feelings, not just flowers.</p>
       </footer>
     </div>
-  );
-}
-
-// Interactive helper button with magnetic effect
-function ButtonWithAnimation({ children }: { children: React.ReactNode }) {
-  return (
-    <motion.button 
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-      className="flex h-10 items-center justify-center rounded-full bg-rose-600 px-5 text-sm font-bold text-white hover:bg-rose-500 hover:shadow-lg hover:shadow-rose-600/15 cursor-pointer transition-colors"
-    >
-      {children}
-    </motion.button>
   );
 }

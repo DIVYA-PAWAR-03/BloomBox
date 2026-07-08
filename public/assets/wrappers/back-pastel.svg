@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
+  <defs>
+    <linearGradient id="backGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fdf4ff" />
+      <stop offset="50%" stop-color="#fbcfe8" />
+      <stop offset="100%" stop-color="#c084fc" />
+    </linearGradient>
+    <filter id="softShadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="3.5" stdDeviation="3.2" flood-color="#44382e" flood-opacity="0.12" />
+    </filter>
+    <pattern id="floralPattern" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse" patternTransform="rotate(15)">
+      <path d="M 10 10 C 8 8, 8 5, 10 5 C 12 5, 12 8, 10 10 Z" fill="#ffe4e6" opacity="0.65"/>
+      <path d="M 10 10 C 12 12, 12 15, 10 15 C 8 15, 8 12, 10 10 Z" fill="#ffe4e6" opacity="0.65"/>
+      <path d="M 10 10 C 8 12, 5 12, 5 10 C 5 8, 8 8, 10 10 Z" fill="#ffe4e6" opacity="0.65"/>
+      <path d="M 10 10 C 12 8, 15 8, 15 10 C 15 12, 12 12, 10 10 Z" fill="#ffe4e6" opacity="0.65"/>
+      <circle cx="10" cy="10" r="1.5" fill="#fde68a"/>
+      <path d="M 14 6 Q 16 5 16 8 Q 13 8 14 6" fill="#bbf7d0" opacity="0.55"/>
+      <circle cx="4" cy="4" r="1" fill="#bae6fd" opacity="0.5"/>
+      <circle cx="16" cy="16" r="1" fill="#f3e8ff" opacity="0.5"/>
+    </pattern>
+  </defs>
+  <!-- Left fanning backing paper fold -->
+  <path d="M 50 85 L 16 50 C 11 38, 25 24, 40 30 L 50 58 Z" fill="url(#backGrad)" filter="url(#softShadow)" />
+  <!-- Right fanning backing paper fold -->
+  <path d="M 50 85 L 84 50 C 89 38, 75 24, 60 30 L 50 58 Z" fill="url(#backGrad)" filter="url(#softShadow)" />
+  <!-- Center fanning backing paper fold -->
+  <path d="M 50 85 L 26 42 C 32 30, 68 30, 74 42 Z" fill="url(#backGrad)" filter="url(#softShadow)" />
+  <path d="M 50 85 L 16 50 C 11 38, 25 24, 40 30 L 50 58 Z" fill="url(#floralPattern)" />
+  <path d="M 50 85 L 84 50 C 89 38, 75 24, 60 30 L 50 58 Z" fill="url(#floralPattern)" />
+  <path d="M 50 85 L 26 42 C 32 30, 68 30, 74 42 Z" fill="url(#floralPattern)" />
+
+  <!-- Shading creases and highlights -->
+  <path d="M 50 85 L 40 30" stroke="rgba(109, 40, 217, 0.15)" stroke-width="0.75" fill="none" opacity="0.6" />
+  <path d="M 50 85 L 60 30" stroke="rgba(109, 40, 217, 0.15)" stroke-width="0.75" fill="none" opacity="0.6" />
+  <path d="M 50 85 L 26 42" stroke="rgba(255, 255, 255, 0.6)" stroke-width="0.75" fill="none" opacity="0.7" />
+  <path d="M 50 85 L 74 42" stroke="rgba(255, 255, 255, 0.6)" stroke-width="0.75" fill="none" opacity="0.7" />
+</svg>

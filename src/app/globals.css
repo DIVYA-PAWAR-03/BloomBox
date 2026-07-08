@@ -9,7 +9,10 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-heading: var(--font-playfair);
+  --font-serif: var(--font-cormorant);
+  --font-caveat: var(--font-caveat);
+  --font-great-vibes: var(--font-great-vibes);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -49,24 +52,24 @@
 }
 
 :root {
-  --background: oklch(0.99 0.005 16);
-  --foreground: oklch(0.145 0.01 16);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0.01 16);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0.01 16);
+  --background: #faf6f0;
+  --foreground: #2c2421;
+  --card: #ffffff;
+  --card-foreground: #2c2421;
+  --popover: #ffffff;
+  --popover-foreground: #2c2421;
   --primary: oklch(0.55 0.21 16); /* Rich Rose */
-  --primary-foreground: oklch(0.985 0 0);
+  --primary-foreground: #ffffff;
   --secondary: oklch(0.40 0.09 150); /* Sage Green */
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.95 0.01 16);
-  --muted-foreground: oklch(0.45 0.02 16);
+  --secondary-foreground: #ffffff;
+  --muted: #f3eee7;
+  --muted-foreground: #6e645e;
   --accent: oklch(0.76 0.15 76); /* Warm Gold */
-  --accent-foreground: oklch(0.145 0.01 16);
+  --accent-foreground: #2c2421;
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.92 0.01 16);
-  --input: oklch(0.92 0.01 16);
-  --ring: oklch(0.55 0.21 16);
+  --border: #e4e2dd;
+  --input: #e4e2dd;
+  --ring: #f43f5e;
   --radius: 0.75rem;
 }
 
@@ -96,9 +99,71 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground overflow-x-hidden;
   }
   html {
     @apply font-sans;
   }
+}
+
+.font-heading {
+  font-family: var(--font-playfair), serif;
+}
+
+.font-serif {
+  font-family: var(--font-cormorant), serif;
+}
+
+.font-sans {
+  font-family: var(--font-sans), sans-serif;
+}
+
+/* Romantic design system utilities */
+.glass-premium {
+  background: rgba(255, 253, 251, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(251, 207, 232, 0.4);
+  box-shadow: 0 8px 32px 0 rgba(244, 114, 182, 0.08);
+}
+
+.glass-premium-light {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(251, 207, 232, 0.3);
+}
+
+.font-caveat {
+  font-family: var(--font-caveat), cursive;
+}
+
+.font-great-vibes {
+  font-family: var(--font-great-vibes), cursive;
+}
+
+.rose-gold-gradient {
+  background: linear-gradient(135deg, #e0a9a5 0%, #ffb5a7 50%, #e5c595 100%);
+}
+
+.rose-gold-text {
+  background: linear-gradient(135deg, #e0a9a5 0%, #ffb5a7 50%, #e5c595 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Premium scrollbar utilities */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(253, 232, 244, 0.3);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(244, 114, 182, 0.25);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(244, 114, 182, 0.45);
 }

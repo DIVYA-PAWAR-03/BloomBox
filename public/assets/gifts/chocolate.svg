@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <!-- Chocolate wrapper back -->
+  <rect x="25" y="20" width="50" height="60" rx="4" fill="#b45309" stroke="#78350f" stroke-width="1" />
+  <!-- Chocolate segments -->
+  <g fill="#7c2d12" stroke="#451a03" stroke-width="0.5">
+    <rect x="30" y="25" width="18" height="10" rx="1" />
+    <rect x="52" y="25" width="18" height="10" rx="1" />
+    
+    <rect x="30" y="38" width="18" height="10" rx="1" />
+    <rect x="52" y="38" width="18" height="10" rx="1" />
+    
+    <rect x="30" y="51" width="18" height="10" rx="1" />
+    <rect x="52" y="51" width="18" height="10" rx="1" />
+  </g>
+  <!-- Foil wrapper half-torn -->
+  <path d="M 23,45 L 77,45 L 75,82 C 75,84 25,84 25,82 Z" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="1" />
+  <path d="M 23,45 Q 35,42 45,47 Q 55,41 65,46 Q 72,40 77,45 Z" fill="#cbd5e1" />
+  <!-- Premium red band wrapper -->
+  <rect x="24" y="55" width="52" height="20" fill="#be123c" stroke="#9f1239" stroke-width="1" />
+  <!-- Gold star inside wrapper -->
+  <path d="M 50,60 L 52,63 L 56,63 L 53,65 L 54,69 L 50,67 L 46,69 L 47,65 L 44,63 L 48,63 Z" fill="#fbbf24" />
+</svg>

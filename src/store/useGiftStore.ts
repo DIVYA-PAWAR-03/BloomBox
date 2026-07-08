@@ -9,13 +9,14 @@ export type EnvelopeTexture = 'smooth' | 'linen' | 'parchment' | 'kraft';
 export type WaxSealType = 'rose' | 'heart' | 'ring' | 'star' | 'none';
 export type LetterTemplate =
   | 'love' | 'birthday' | 'friendship' | 'anniversary' | 'wedding'
-  | 'minimal' | 'vintage' | 'royal' | 'handwritten' | 'fairy';
+  | 'minimal' | 'vintage' | 'royal' | 'handwritten' | 'fairy'
+  | 'apology' | 'thank_you' | 'sympathy' | 'get_well' | 'just_because';
 
 export type TypingSpeed = 'slow' | 'medium' | 'fast' | 'skip';
 export type PhotoLayout = 'single' | 'grid' | 'polaroid' | 'heart' | 'filmstrip' | 'collage';
 export type EffectType = 'sparkles' | 'petals' | 'butterflies' | 'fireflies' | 'snow' | 'confetti' | 'glow' | 'none';
 export type AppLocale = 'en' | 'hi' | 'mr' | 'ja' | 'fr' | 'de' | 'es';
-export type TimelineStyle = 'love' | 'friendship' | 'minimal' | 'luxury' | 'scrapbook' | 'vintage' | 'floral';
+export type TimelineStyle = 'love' | 'friendship' | 'minimal' | 'luxury' | 'scrapbook' | 'vintage' | 'floral' | 'birthday' | 'wedding' | 'anniversary';
 
 export interface JourneyMemory {
   id: string;
@@ -27,6 +28,11 @@ export interface JourneyMemory {
   emoji?: string;
   location?: string;
   type: string;
+  bgColor?: string;
+  stickers?: string[];
+  photoLayout?: 'single' | 'grid' | 'filmstrip' | 'polaroid' | 'scrapbook' | 'heart';
+  photos?: string[];
+  position?: number;
 }
 
 export interface PhotoMemory {
@@ -122,11 +128,19 @@ interface GiftStateStore {
   expiryDate: string;
   disableComments: boolean;
   disableReactions: boolean;
+  senderName: string;
+  recipientName: string;
+  occasion: string;
+  giftTitle: string;
   setIsPrivate: (priv: boolean) => void;
   setPassword: (pass: string) => void;
   setExpiryDate: (date: string) => void;
   setDisableComments: (dis: boolean) => void;
   setDisableReactions: (dis: boolean) => void;
+  setSenderName: (name: string) => void;
+  setRecipientName: (name: string) => void;
+  setOccasion: (occ: string) => void;
+  setGiftTitle: (title: string) => void;
 
   // Journey Timeline (Phase 8)
   timelineStyle: TimelineStyle;
@@ -135,7 +149,22 @@ interface GiftStateStore {
   setTimelineStyle: (style: TimelineStyle) => void;
   addJourneyMemory: (memory: Omit<JourneyMemory, 'id'>) => void;
   removeJourneyMemory: (id: string) => void;
+  updateJourneyMemory: (id: string, updates: Partial<JourneyMemory>) => void;
+  setJourneyMemories: (memories: JourneyMemory[]) => void;
+  duplicateJourneyMemory: (id: string) => void;
   setRecipientReturnedMemory: (memory: JourneyMemory | null) => void;
+
+  // Custom Bouquet properties
+  bouquetStyle: string;
+  wrappingPaper: string;
+  flowers: any[];
+  setBouquetStyle: (style: string) => void;
+  setWrappingPaper: (paper: string) => void;
+  setFlowers: (flowers: any[]) => void;
+  addFlower: (flower: any) => void;
+  removeFlower: (id: string) => void;
+  updateFlowerPosition: (id: string, x: number, y: number) => void;
+  clearFlowers: () => void;
 }
 
 export const useGiftStore = create<GiftStateStore>((set) => ({
@@ -235,11 +264,19 @@ export const useGiftStore = create<GiftStateStore>((set) => ({
   expiryDate: '',
   disableComments: false,
   disableReactions: false,
+  senderName: 'Alexander',
+  recipientName: 'Sophia',
+  occasion: 'Anniversary Special',
+  giftTitle: 'A Crimson Melody Bouquet',
   setIsPrivate: (isPrivate) => set({ isPrivate }),
   setPassword: (password) => set({ password }),
   setExpiryDate: (expiryDate) => set({ expiryDate }),
   setDisableComments: (disableComments) => set({ disableComments }),
   setDisableReactions: (disableReactions) => set({ disableReactions }),
+  setSenderName: (senderName) => set({ senderName }),
+  setRecipientName: (recipientName) => set({ recipientName }),
+  setOccasion: (occasion) => set({ occasion }),
+  setGiftTitle: (giftTitle) => set({ giftTitle }),
 
   // Journey Timeline (Phase 8)
   timelineStyle: 'love',
@@ -257,12 +294,49 @@ export const useGiftStore = create<GiftStateStore>((set) => ({
   ],
   recipientReturnedMemory: null,
   setTimelineStyle: (timelineStyle) => set({ timelineStyle }),
-  addJourneyMemory: (memory) => set((s) => ({
-    journeyMemories: [...s.journeyMemories, { ...memory, id: crypto.randomUUID() }]
-  })),
+  addJourneyMemory: (memory) => set((s) => {
+    const nextPos = s.journeyMemories.length > 0 
+      ? Math.max(...s.journeyMemories.map(m => m.position || 0)) + 1 
+      : 0;
+    return {
+      journeyMemories: [...s.journeyMemories, { ...memory, id: crypto.randomUUID(), position: nextPos }]
+    };
+  }),
   removeJourneyMemory: (id) => set((s) => ({
     journeyMemories: s.journeyMemories.filter(m => m.id !== id)
   })),
-  setRecipientReturnedMemory: (recipientReturnedMemory) => set({ recipientReturnedMemory })
+  updateJourneyMemory: (id, updates) => set((s) => ({
+    journeyMemories: s.journeyMemories.map(m => m.id === id ? { ...m, ...updates } : m)
+  })),
+  setJourneyMemories: (journeyMemories) => set({ journeyMemories }),
+  duplicateJourneyMemory: (id) => set((s) => {
+    const target = s.journeyMemories.find(m => m.id === id);
+    if (!target) return {};
+    const duplicated = {
+      ...target,
+      id: crypto.randomUUID(),
+      title: `${target.title} (Copy)`,
+      position: (target.position || 0) + 0.5 // insert nearby
+    };
+    const updatedList = [...s.journeyMemories, duplicated].sort((a, b) => (a.position || 0) - (b.position || 0));
+    // re-normalize positions
+    const normalized = updatedList.map((m, idx) => ({ ...m, position: idx }));
+    return { journeyMemories: normalized };
+  }),
+  setRecipientReturnedMemory: (recipientReturnedMemory) => set({ recipientReturnedMemory }),
+
+  // Custom Bouquet defaults and methods
+  bouquetStyle: 'classic',
+  wrappingPaper: 'pink',
+  flowers: [],
+  setBouquetStyle: (bouquetStyle) => set({ bouquetStyle }),
+  setWrappingPaper: (wrappingPaper) => set({ wrappingPaper }),
+  setFlowers: (flowers) => set({ flowers }),
+  addFlower: (flower) => set((s) => ({ flowers: [...s.flowers, flower] })),
+  removeFlower: (id) => set((s) => ({ flowers: s.flowers.filter((f) => f.id !== id) })),
+  updateFlowerPosition: (id, x, y) => set((s) => ({
+    flowers: s.flowers.map((f) => (f.id === id ? { ...f, x, y } : f))
+  })),
+  clearFlowers: () => set({ flowers: [] })
 }));
 export default useGiftStore;

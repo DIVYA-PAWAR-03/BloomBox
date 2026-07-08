@@ -7,6 +7,30 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+
+  experimental: {
+    workerThreads: false,
+    webpackBuildWorker: false,
+    cpus: 1,
+  },
+
+  webpack: (config) => {
+    config.cache = false;
+    return config;
+  },
+
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**",
+      },
+      {
+        protocol: "http",
+        hostname: "**",
+      },
+    ],
+  },
 };
 
 export default nextConfig;

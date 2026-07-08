@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="heartGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fda4af" />
+      <stop offset="50%" stop-color="#f43f5e" />
+      <stop offset="100%" stop-color="#be123c" />
+    </linearGradient>
+  </defs>
+  <!-- Die cut white border -->
+  <path d="M 50,88 C 45,83 11,54 11,32 C 11,18 22,8 35,8 C 43,8 47,13 50,16 C 53,13 57,8 65,8 C 78,8 89,18 89,32 C 89,54 55,83 50,88 Z" fill="#ffffff" filter="drop-shadow(0 4px 6px rgba(0,0,0,0.15))" />
+  <!-- Crimson Heart -->
+  <path d="M 50,84 C 46,80 15,52 15,32 C 15,21 24,12 35,12 C 42,12 46,16 50,20 C 54,16 58,12 65,12 C 76,12 85,21 85,32 C 85,52 54,80 50,84 Z" fill="url(#heartGrad)" />
+</svg>

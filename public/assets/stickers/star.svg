@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="starGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a" />
+      <stop offset="50%" stop-color="#fbbf24" />
+      <stop offset="100%" stop-color="#ca8a04" />
+    </linearGradient>
+  </defs>
+  <!-- Die cut white border -->
+  <path d="M 50,7 L 63,33 L 92,37 L 71,58 L 76,87 L 50,73 L 24,87 L 29,58 L 8,37 L 37,33 Z" fill="#ffffff" stroke="#e2e8f0" stroke-width="2" filter="drop-shadow(0 4px 6px rgba(0,0,0,0.15))" />
+  <!-- Gold Star -->
+  <path d="M 50,11 L 61,35 L 88,39 L 68,58 L 73,85 L 50,72 L 27,85 L 32,58 L 12,39 L 39,35 Z" fill="url(#starGrad)" />
+</svg>
