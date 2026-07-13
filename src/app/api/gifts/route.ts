@@ -78,25 +78,42 @@ export async function POST(req: NextRequest) {
 
     // Compact fallback data helper for read-only environments (Vercel serverless)
     const getFallbackCode = () => {
-      const compactData = {
-        sty: body.bouquet_style || 'classic',
-        fl: (body.flowers || []).map((f: any) => [
-          f.type,
-          Math.round(f.x),
-          Math.round(f.y),
-          Math.round(f.rotation),
-          parseFloat(f.scale.toFixed(2)),
-        ]),
-        fi: body.fillers || [],
-        wr: body.wrapping || 'white',
-        ri: body.ribbon || 'pink',
-        ex: body.extras || [],
-        lt: body.letter_template || 'classic',
-        rec: body.recipient_name || '',
-        msg: body.message || '',
-        sen: body.sender_name || '',
-        ev: body.envelope || 'classic',
-      };
+      const compactData: any = {};
+      if (body.bouquet_style && body.bouquet_style !== 'classic') {
+        compactData.sty = body.bouquet_style;
+      }
+      
+      const flData = (body.flowers || []).map((f: any) => [
+        f.type,
+        Math.round(f.x),
+        Math.round(f.y),
+        Math.round(f.rotation),
+        parseFloat(f.scale.toFixed(2)),
+      ]);
+      if (flData.length > 0) {
+        compactData.fl = flData;
+      }
+
+      // Default fillers are baby_breath, green_leaves, eucalyptus
+      const defaultFillers = ['baby_breath', 'green_leaves', 'eucalyptus'];
+      const hasCustomFillers = !body.fillers || 
+        body.fillers.length !== 3 || 
+        !body.fillers.includes('baby_breath') || 
+        !body.fillers.includes('green_leaves') || 
+        !body.fillers.includes('eucalyptus');
+      if (hasCustomFillers && body.fillers) {
+        compactData.fi = body.fillers;
+      }
+
+      if (body.wrapping && body.wrapping !== 'white') compactData.wr = body.wrapping;
+      if (body.ribbon && body.ribbon !== 'pink') compactData.ri = body.ribbon;
+      if (body.extras && body.extras.length > 0) compactData.ex = body.extras;
+      if (body.letter_template && body.letter_template !== 'love') compactData.lt = body.letter_template;
+      if (body.recipient_name) compactData.rec = body.recipient_name;
+      if (body.message) compactData.msg = body.message;
+      if (body.sender_name) compactData.sen = body.sender_name;
+      if (body.envelope && body.envelope !== 'classic') compactData.ev = body.envelope;
+
       return 'u_' + Buffer.from(JSON.stringify(compactData)).toString('base64url');
     };
 
@@ -149,11 +166,11 @@ export async function GET(req: NextRequest) {
           scale: arr[4],
           zIndex: 20 + i,
         })),
-        fillers: data.fi || [],
+        fillers: data.fi || ['baby_breath', 'green_leaves', 'eucalyptus'],
         wrapping: data.wr || 'white',
         ribbon: data.ri || 'pink',
         extras: data.ex || [],
-        letter_template: data.lt || 'classic',
+        letter_template: data.lt || 'love',
         recipient_name: data.rec || '',
         message: data.msg || '',
         sender_name: data.sen || '',
