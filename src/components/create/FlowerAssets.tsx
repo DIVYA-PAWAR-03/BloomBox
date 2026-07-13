@@ -225,7 +225,7 @@ function WatercolorFilter({ id }: { id: string }) {
       <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" result="noise" />
       <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G" result="displaced" />
       <feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="2" result="paperNoise" />
-      <feDiffuseLighting in="paperNoise" lighting-color="#ffffff" surfaceScale="0.8" result="light">
+      <feDiffuseLighting in="paperNoise" lightingColor="#ffffff" surfaceScale="0.8" result="light">
         <feDistantLight azimuth="45" elevation="60" />
       </feDiffuseLighting>
       <feBlend mode="multiply" in="displaced" in2="light" />

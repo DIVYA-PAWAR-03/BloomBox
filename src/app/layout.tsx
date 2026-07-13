@@ -85,8 +85,9 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${inter.variable} ${playfair.variable} ${cormorant.variable} ${caveat.variable} ${greatVibes.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-background text-foreground">{children}</body>
+      <body className="min-h-full flex flex-col bg-background text-foreground" suppressHydrationWarning>{children}</body>
     </html>
   );
 }
