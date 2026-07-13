@@ -76,10 +76,34 @@ export async function POST(req: NextRequest) {
       created_at: new Date().toISOString(),
     };
 
+    // Compact fallback data helper for read-only environments (Vercel serverless)
+    const getFallbackCode = () => {
+      const compactData = {
+        sty: body.bouquet_style || 'classic',
+        fl: (body.flowers || []).map((f: any) => [
+          f.type,
+          Math.round(f.x),
+          Math.round(f.y),
+          Math.round(f.rotation),
+          parseFloat(f.scale.toFixed(2)),
+        ]),
+        fi: body.fillers || [],
+        wr: body.wrapping || 'white',
+        ri: body.ribbon || 'pink',
+        ex: body.extras || [],
+        lt: body.letter_template || 'classic',
+        rec: body.recipient_name || '',
+        msg: body.message || '',
+        sen: body.sender_name || '',
+        ev: body.envelope || 'classic',
+      };
+      return 'u_' + Buffer.from(JSON.stringify(compactData)).toString('base64url');
+    };
+
     if (!supabase) {
-      console.log('Supabase not configured, saving to local JSON database.');
-      writeLocalGift(shareCode, giftData);
-      return NextResponse.json({ shareCode });
+      console.log('Supabase not configured. Using compressed URL-encoded fallback.');
+      const fallbackCode = getFallbackCode();
+      return NextResponse.json({ shareCode: fallbackCode });
     }
 
     const { data, error } = await supabase
@@ -89,9 +113,9 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (error) {
-      console.error('Supabase error, falling back to local JSON database:', error);
-      writeLocalGift(shareCode, giftData);
-      return NextResponse.json({ shareCode });
+      console.error('Supabase error, falling back to URL-encoded fallback:', error);
+      const fallbackCode = getFallbackCode();
+      return NextResponse.json({ shareCode: fallbackCode });
     }
 
     return NextResponse.json({ shareCode: data.share_code });
@@ -105,6 +129,41 @@ export async function GET(req: NextRequest) {
   const shareCode = req.nextUrl.searchParams.get('code');
   if (!shareCode) {
     return NextResponse.json({ error: 'No share code provided' }, { status: 400 });
+  }
+
+  // Handle URL-encoded fallback share codes (starting with 'u_')
+  if (shareCode.startsWith('u_')) {
+    try {
+      const base64Str = shareCode.slice(2);
+      const jsonStr = Buffer.from(base64Str, 'base64url').toString('utf-8');
+      const data = JSON.parse(jsonStr);
+      const gift = {
+        share_code: shareCode,
+        bouquet_style: data.sty || 'classic',
+        flowers: (data.fl || []).map((arr: any, i: number) => ({
+          id: `${arr[0]}-${i}-${Math.random().toString(36).slice(2, 6)}`,
+          type: arr[0],
+          x: arr[1],
+          y: arr[2],
+          rotation: arr[3],
+          scale: arr[4],
+          zIndex: 20 + i,
+        })),
+        fillers: data.fi || [],
+        wrapping: data.wr || 'white',
+        ribbon: data.ri || 'pink',
+        extras: data.ex || [],
+        letter_template: data.lt || 'classic',
+        recipient_name: data.rec || '',
+        message: data.msg || '',
+        sender_name: data.sen || '',
+        envelope: data.ev || 'classic',
+      };
+      return NextResponse.json({ gift });
+    } catch (e) {
+      console.error('Error decoding URL share code:', e);
+      return NextResponse.json({ error: 'Invalid share code format' }, { status: 400 });
+    }
   }
 
   if (!supabase) {
