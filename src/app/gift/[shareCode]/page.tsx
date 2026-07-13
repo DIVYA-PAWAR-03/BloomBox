@@ -107,13 +107,53 @@ export default function RecipientPage() {
 
   const fetchGift = async () => {
     try {
+      // Decode compressed base64url fallback codes instantly client-side without API latency
+      if (shareCode && shareCode.startsWith('u_')) {
+        try {
+          const base64Str = shareCode.slice(2);
+          const base64 = base64Str.replace(/-/g, '+').replace(/_/g, '/');
+          const jsonStr = decodeURIComponent(
+            escape(window.atob(base64))
+          );
+          const decoded = JSON.parse(jsonStr);
+          
+          const gift = {
+            bouquet_style: decoded.sty || 'classic',
+            flowers: (decoded.fl || []).map((arr: any, i: number) => ({
+              id: `${arr[0]}-${i}-${Math.random().toString(36).slice(2, 6)}`,
+              type: arr[0],
+              x: arr[1],
+              y: arr[2],
+              rotation: arr[3],
+              scale: arr[4],
+              zIndex: 20 + i,
+            })),
+            fillers: decoded.fi || [],
+            wrapping: decoded.wr || 'white',
+            ribbon: decoded.ri || 'pink',
+            extras: decoded.ex || [],
+            letter_template: decoded.lt || 'classic',
+            recipient_name: decoded.rec || '',
+            message: decoded.msg || '',
+            sender_name: decoded.sen || '',
+            envelope: decoded.ev || 'classic',
+          };
+          setGift(gift);
+          setLoading(false);
+          return;
+        } catch (err) {
+          console.error('Failed to decode fallback link client-side:', err);
+          // Fall back to API fetch if decoding fails
+        }
+      }
+
       // Try fetching from API
       const res = await fetch(`/api/gifts?code=${shareCode}`);
       if (res.ok) {
         const { gift } = await res.json();
         setGift(gift);
       } else {
-        // Try decoding from base64 URL fallback (browser safe)
+        // Try decoding older legacy base64 URL fallback
         try {
           const base64 = shareCode.replace(/-/g, '+').replace(/_/g, '/');
           const jsonStr = decodeURIComponent(
