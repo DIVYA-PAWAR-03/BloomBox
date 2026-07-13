@@ -99,10 +99,22 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground overflow-x-hidden;
+    @apply bg-background text-foreground overflow-x-hidden cursor-default;
   }
   html {
     @apply font-sans;
+  }
+  button,
+  a,
+  select,
+  input[type="checkbox"],
+  input[type="radio"],
+  input[type="range"] {
+    cursor: pointer;
+  }
+  input[type="text"],
+  textarea {
+    cursor: text;
   }
 }
 

@@ -1,11 +1,49 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import fs from 'fs';
+import path from 'path';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
 
+// Local JSON database helper utilities
+const dbPath = path.join(process.cwd(), 'data', 'gifts.json');
+
+function ensureDb() {
+  const dir = path.dirname(dbPath);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+  if (!fs.existsSync(dbPath)) {
+    fs.writeFileSync(dbPath, JSON.stringify({}));
+  }
+}
+
+function readLocalGift(shareCode: string) {
+  try {
+    ensureDb();
+    const fileContent = fs.readFileSync(dbPath, 'utf-8');
+    const db = JSON.parse(fileContent);
+    return db[shareCode] || null;
+  } catch (e) {
+    console.error('Error reading local gift database:', e);
+    return null;
+  }
+}
+
+function writeLocalGift(shareCode: string, giftData: any) {
+  try {
+    ensureDb();
+    const fileContent = fs.readFileSync(dbPath, 'utf-8');
+    const db = JSON.parse(fileContent);
+    db[shareCode] = giftData;
+    fs.writeFileSync(dbPath, JSON.stringify(db, null, 2));
+  } catch (e) {
+    console.error('Error writing to local gift database:', e);
+  }
+}
 
 // Generate a short unique share code
 function generateShareCode(): string {
@@ -20,7 +58,6 @@ function generateShareCode(): string {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-
     const shareCode = generateShareCode();
 
     const giftData = {
@@ -40,9 +77,9 @@ export async function POST(req: NextRequest) {
     };
 
     if (!supabase) {
-      console.log('Supabase not configured, falling back to URL-encoding.');
-      const encoded = Buffer.from(JSON.stringify(giftData)).toString('base64url');
-      return NextResponse.json({ shareCode: encoded, fallback: true });
+      console.log('Supabase not configured, saving to local JSON database.');
+      writeLocalGift(shareCode, giftData);
+      return NextResponse.json({ shareCode });
     }
 
     const { data, error } = await supabase
@@ -52,10 +89,9 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (error) {
-      console.error('Supabase error:', error);
-      // Fallback: encode data in URL if DB fails
-      const encoded = Buffer.from(JSON.stringify(giftData)).toString('base64url');
-      return NextResponse.json({ shareCode: encoded, fallback: true });
+      console.error('Supabase error, falling back to local JSON database:', error);
+      writeLocalGift(shareCode, giftData);
+      return NextResponse.json({ shareCode });
     }
 
     return NextResponse.json({ shareCode: data.share_code });
@@ -72,8 +108,11 @@ export async function GET(req: NextRequest) {
   }
 
   if (!supabase) {
-    // If not configured, we can't query by code from database, but client will decode from base64Url itself
-    return NextResponse.json({ error: 'Database not configured' }, { status: 501 });
+    const localGift = readLocalGift(shareCode);
+    if (!localGift) {
+      return NextResponse.json({ error: 'Gift not found' }, { status: 404 });
+    }
+    return NextResponse.json({ gift: localGift });
   }
 
   const { data, error } = await supabase
@@ -83,6 +122,11 @@ export async function GET(req: NextRequest) {
     .single();
 
   if (error || !data) {
+    // If not found in Supabase, check local fallback
+    const localGift = readLocalGift(shareCode);
+    if (localGift) {
+      return NextResponse.json({ gift: localGift });
+    }
     return NextResponse.json({ error: 'Gift not found' }, { status: 404 });
   }
 

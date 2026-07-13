@@ -6,6 +6,7 @@ import { useBouquetStore } from '@/store/useBouquetStore';
 import { FLOWER_CATALOGUE } from '@/types/bouquet';
 import type { FlowerType } from '@/types/bouquet';
 import { Trash2, Copy, ArrowUp, ArrowDown, X } from 'lucide-react';
+import FlowerAssetRenderer from '@/components/create/FlowerAssets';
 
 const containerVariants = {
   hidden: {},
@@ -161,8 +162,10 @@ export default function Step2Flowers() {
                   )}
                 </AnimatePresence>
 
-                {/* Emoji */}
-                <span style={{ fontSize: '2.5rem', lineHeight: 1 }}>{flower.emoji}</span>
+                {/* Real flower graphic swatch instead of system emoji */}
+                <div className="w-12 h-12 flex items-center justify-center relative pointer-events-none select-none">
+                  <FlowerAssetRenderer type={flower.type} />
+                </div>
 
                 {/* Color dot + name */}
                 <div className="flex items-center gap-1">

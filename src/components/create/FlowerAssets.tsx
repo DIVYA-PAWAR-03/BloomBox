@@ -109,6 +109,14 @@ function getBloomPresentation(type: string): BloomPresentation {
         objectPosition: 'center center',
         filter: 'drop-shadow(0 8px 16px rgba(236,72,153,0.16)) saturate(1.05)',
       };
+    case 'carnation':
+      return {
+        scale: 1.08,
+        translateX: '0%',
+        translateY: '0%',
+        objectPosition: 'center center',
+        filter: 'drop-shadow(0 8px 16px rgba(225,29,72,0.15)) saturate(1.05)',
+      };
     case 'marigold':
       return {
         scale: 1.06,
@@ -116,6 +124,30 @@ function getBloomPresentation(type: string): BloomPresentation {
         translateY: '0%',
         objectPosition: 'center center',
         filter: 'drop-shadow(0 8px 16px rgba(245,158,11,0.18)) saturate(1.06)',
+      };
+    case 'leaf_green':
+      return {
+        scale: 1.05,
+        translateX: '0%',
+        translateY: '0%',
+        objectPosition: 'center center',
+        filter: 'drop-shadow(0 4px 10px rgba(0,0,0,0.1)) saturate(1.05)',
+      };
+    case 'leaf_fern':
+      return {
+        scale: 1.1,
+        translateX: '0%',
+        translateY: '0%',
+        objectPosition: 'center center',
+        filter: 'drop-shadow(0 4px 10px rgba(0,0,0,0.1)) saturate(1.05)',
+      };
+    case 'leaf_eucalyptus':
+      return {
+        scale: 1.1,
+        translateX: '0%',
+        translateY: '0%',
+        objectPosition: 'center center',
+        filter: 'drop-shadow(0 4px 10px rgba(0,0,0,0.1)) saturate(1.05)',
       };
     default:
       return {
@@ -141,7 +173,18 @@ export default function FlowerAssetRenderer({ type, className, style }: FlowerAs
     'tulip',
     'lily',
     'peony',
-    'daisy'
+    'daisy',
+    'carnation',
+    'hydrangea',
+    'orchid',
+    'cherry_blossom',
+    'lavender',
+    'lotus',
+    'marigold',
+    'jasmine',
+    'leaf_green',
+    'leaf_fern',
+    'leaf_eucalyptus'
   ];
 
   if (pngAssets.includes(type)) {

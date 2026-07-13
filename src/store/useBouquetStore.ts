@@ -25,8 +25,19 @@ interface FloristSlot {
   zIndex: number;
 }
 
+// V-shaped bouquet limits: prevents flowers from floating in mid-air on the sides
+function clampToBouquetV(x: number, y: number): { x: number; y: number } {
+  const clampedY = Math.max(10, Math.min(54, y));
+  const progress = (clampedY - 10) / (54 - 10);
+  const clampedProgress = Math.max(0, Math.min(1, progress));
+  // Limit horizontal fanning space: Y=10 gives +/- 35% margin, Y=54 (near ribbon) gives +/- 12% margin
+  const maxDX = 35 - clampedProgress * (35 - 12);
+  const clampedX = Math.max(50 - maxDX, Math.min(50 + maxDX, x));
+  return { x: clampedX, y: clampedY };
+}
+
 function resolveCollisions(flowers: FlowerItem[]): FlowerItem[] {
-  const threshold = 11.5; // spacing in % of container
+  const threshold = 12.5; // spacing in % of container to prevent overlap
   let changed = true;
   let iterations = 0;
   
@@ -63,11 +74,14 @@ function resolveCollisions(flowers: FlowerItem[]): FlowerItem[] {
           f2.x += forceX;
           f2.y += forceY;
           
-          // Clamp to flower container limits
-          f1.x = Math.max(8, Math.min(92, f1.x));
-          f1.y = Math.max(10, Math.min(62, f1.y));
-          f2.x = Math.max(8, Math.min(92, f2.x));
-          f2.y = Math.max(10, Math.min(62, f2.y));
+          // Clamp to V-shaped flower container limits
+          const c1 = clampToBouquetV(f1.x, f1.y);
+          f1.x = c1.x;
+          f1.y = c1.y;
+          
+          const c2 = clampToBouquetV(f2.x, f2.y);
+          f2.x = c2.x;
+          f2.y = c2.y;
           
           changed = true;
         }
@@ -169,9 +183,10 @@ function getFloristSlots(pattern: 'dome' | 'heart' | 'cascade', count: number): 
       const scaleVariation = scale * baseScale * (0.95 + Math.sin(i * 1.7) * 0.05); // 90% to 100% of scale
       const rotationVariation = Math.max(-45, Math.min(45, angle * 0.4)) + (Math.cos(i * 3.1) * 8); // -8 to +8 deg variation
       
+      const clamped = clampToBouquetV(x, y);
       const slot: FloristSlot = {
-        x: Math.max(8, Math.min(92, x)),
-        y: Math.max(12, Math.min(60, y)),
+        x: clamped.x,
+        y: clamped.y,
         rotation: rotationVariation,
         scale: scaleVariation,
         zIndex: 20 + i,
@@ -207,7 +222,7 @@ function getFloristSlots(pattern: 'dome' | 'heart' | 'cascade', count: number): 
     
     let slotIdx = 0;
     rows.forEach((row, r) => {
-      const rowY = 16 + r * 6.5;
+      const rowY = 14 + r * 4.2; // tighter row spacing to fit in the V-shape bouquet
       const rowCount = row.length;
       
       let rowWidth = 32;
@@ -239,9 +254,10 @@ function getFloristSlots(pattern: 'dome' | 'heart' | 'cascade', count: number): 
         const scaleVariation = depthScale * (0.95 + Math.sin(slotIdx * 1.7) * 0.05);
         const rotationVariation = rot + (Math.cos(slotIdx * 3.1) * 8);
         
+        const clamped = clampToBouquetV(x, y);
         slots.push({
-          x: Math.max(8, Math.min(92, x)),
-          y: Math.max(12, Math.min(62, y)),
+          x: clamped.x,
+          y: clamped.y,
           rotation: rotationVariation,
           scale: scaleVariation,
           zIndex: 20 + slotIdx,
@@ -264,10 +280,10 @@ function getFloristSlots(pattern: 'dome' | 'heart' | 'cascade', count: number): 
     let allocated = 1;
     let ringIdx = 1;
     const rings = [
-      { cap: 6, rx: 13, ry: 8 },
-      { cap: 12, rx: 24, ry: 15 },
-      { cap: 18, rx: 34, ry: 21 },
-      { cap: 24, rx: 42, ry: 26 },
+      { cap: 6, rx: 11, ry: 7 },
+      { cap: 12, rx: 20, ry: 13 },
+      { cap: 18, rx: 29, ry: 18 },
+      { cap: 24, rx: 36, ry: 22 },
     ];
     
     while (allocated < count) {
@@ -291,9 +307,10 @@ function getFloristSlots(pattern: 'dome' | 'heart' | 'cascade', count: number): 
         const scaleVariation = scale * (0.95 + Math.sin(allocated * 1.7) * 0.05);
         const rotationVariation = angle - 90 + (Math.cos(allocated * 3.1) * 8);
         
+        const clamped = clampToBouquetV(x, y);
         slots.push({
-          x: Math.max(8, Math.min(92, x)),
-          y: Math.max(12, Math.min(62, y)),
+          x: clamped.x,
+          y: clamped.y,
           rotation: rotationVariation,
           scale: scaleVariation,
           zIndex: 40 - ringIdx,
@@ -352,10 +369,11 @@ export function arrangeFlowers(
     // Apply scale multiplier: Large gets boosted, Small gets reduced
     const scaleBoost = isLarge(f.type) ? 1.06 : isMedium(f.type) ? 0.96 : 0.82;
 
+    const clamped = clampToBouquetV(slot.x, slot.y);
     arranged.push({
       ...f,
-      x: Math.max(6, Math.min(94, slot.x)),
-      y: Math.max(8, Math.min(60, slot.y)),
+      x: clamped.x,
+      y: clamped.y,
       scale: slot.scale * scaleBoost,
       rotation: slot.rotation,
       zIndex: slot.zIndex,
@@ -366,26 +384,28 @@ export function arrangeFlowers(
     const angle = (idx * 360) / Math.max(1, foliage.length);
     const rad = (angle * Math.PI) / 180;
     
-    let x = 50 + Math.sin(rad) * 32;
-    let y = 30 + Math.cos(rad) * 20;
+    // Position foliage/leaves in the middle space (in between flowers) rather than on the far outside ring
+    let x = 50 + Math.sin(rad) * (15 + Math.sin(idx * 2.1) * 5);
+    let y = 30 + Math.cos(rad) * (10 + Math.cos(idx * 2.7) * 3);
 
     if (pattern === 'heart') {
       const t = (idx * 2 * Math.PI) / Math.max(1, foliage.length) - Math.PI / 2;
-      x = 50 + 20 * Math.pow(Math.sin(t), 3) * 1.5;
-      y = 30 - 15 * (13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t)) / 16 * 1.1;
+      x = 50 + 10 * Math.pow(Math.sin(t), 3) * 1.5;
+      y = 30 - 8.5 * (13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t)) / 16 * 1.1;
     } else if (pattern === 'cascade') {
-      const angleRange = 135;
+      const angleRange = 100;
       const angleStep = foliage.length > 1 ? angleRange / (foliage.length - 1) : 0;
       const ang = -angleRange / 2 + angleStep * idx;
       const r = (ang * Math.PI) / 180;
-      x = 50 + Math.sin(r) * 34;
-      y = 34 + Math.cos(r) * 22;
+      x = 50 + Math.sin(r) * 18;
+      y = 26 + Math.cos(r) * 10;
     }
 
+    const clamped = clampToBouquetV(x, y);
     arranged.push({
       ...f,
-      x: Math.max(6, Math.min(94, x)),
-      y: Math.max(6, Math.min(58, y)),
+      x: clamped.x,
+      y: clamped.y,
       scale: 0.78,
       rotation: angle - 90 + 35 * Math.sin(idx),
       zIndex: 5 + idx,
@@ -543,10 +563,13 @@ export const useBouquetStore = create<BouquetState>()(
         zIndex: item.zIndex,
       }));
 
+      // Resolve collisions and clamp to the realistic V-shape space
+      const resolved = resolveCollisions(prearrangedFlowers);
+
       set({
         bouquetStyle,
         arrangementPattern: 'dome',
-        flowers: prearrangedFlowers,
+        flowers: resolved,
         wrapping: styleDef.wrapping,
         ribbon: styleDef.ribbon,
       });
@@ -601,11 +624,10 @@ export const useBouquetStore = create<BouquetState>()(
 
       updateFlowerPosition: (id, x, y) => {
         set((s) => {
-          // Clamp coordinates to prevent flowers from going outside the bouquet boundaries
-          const clampedX = Math.max(8, Math.min(92, x));
-          const clampedY = Math.max(12, Math.min(62, y));
+          // Clamp to dynamic V-shaped container limits so dragged flowers stay within realistic boundaries
+          const clamped = clampToBouquetV(x, y);
 
-          const updated = s.flowers.map((f) => (f.id === id ? { ...f, x: clampedX, y: clampedY } : f));
+          const updated = s.flowers.map((f) => (f.id === id ? { ...f, x: clamped.x, y: clamped.y } : f));
           
           // Resolve collisions so other flowers slide to make room and maintain correct depth layers
           const resolved = resolveCollisions(updated);

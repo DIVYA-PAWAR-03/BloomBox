@@ -70,13 +70,24 @@ function seededRandom(seed: number) {
   return x - Math.floor(x);
 }
 
+function clampFillerToV(x: number, y: number): { x: number; y: number } {
+  const clampedY = Math.max(14, Math.min(48, y)); // keep fillers slightly higher than the ribbon cinch
+  const progress = (clampedY - 14) / (48 - 14);
+  const clampedProgress = Math.max(0, Math.min(1, progress));
+  // Limit horizontal fanning space: narrower than flowers to keep them safely inside the bouquet cluster
+  const maxDX = 28 - clampedProgress * (28 - 10);
+  const clampedX = Math.max(50 - maxDX, Math.min(50 + maxDX, x));
+  return { x: clampedX, y: clampedY };
+}
+
 function getFillerPositions(fillerType: FillerType, count: number, fillerIndex: number) {
   return Array.from({ length: count }, (_, i) => {
     const seed = fillerIndex * 100 + i;
-    const x = 12 + seededRandom(seed * 3 + 1) * 76;
-    const y = 10 + seededRandom(seed * 7 + 2) * 44;
+    const rawX = 15 + seededRandom(seed * 3 + 1) * 70;
+    const rawY = 12 + seededRandom(seed * 7 + 2) * 38;
     const rotation = seededRandom(seed * 13 + 3) * 60 - 30;
-    return { x, y, rotation };
+    const clamped = clampFillerToV(rawX, rawY);
+    return { x: clamped.x, y: clamped.y, rotation };
   });
 }
 
@@ -438,45 +449,106 @@ export default function BouquetPreview({
         >
           <defs>
             <linearGradient id="stemGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#15803d" />
+              <stop offset="0%" stopColor="#22c55e" />
+              <stop offset="50%" stopColor="#15803d" />
               <stop offset="100%" stopColor="#14532d" />
             </linearGradient>
           </defs>
           
           {flowers.map((flower) => {
-            // Cap stem starting point at the flower head center (clipping base y)
+            // Cap stem starting point at the flower head center
             const yPct = Math.min(flower.y, 62);
             
             // Stems curve organically towards the cinch point (50, 58)
-            // Left/right flowers curve inwards. Center stems are straighter.
             const cx = 50 + (flower.x - 50) * 0.45;
             const cy = yPct + (58 - yPct) * 0.55;
             
+            // Seeded random target Y for uneven, realistic stem cuts
+            const pseudoRandom = Math.sin(flower.x * 47.3 + flower.y * 19.8);
+            const baseTargetY = 84 + pseudoRandom * 3.5; // uneven cut length between 80.5% and 87.5%
+
             // Lower fanned stem: extends from cinch point (50, 58) to fanned base
             const fanSpread = (flower.x - 50) * 0.22;
             const baseTargetX = 50 + fanSpread;
-            const baseTargetY = 85;
             const baseCX = 50 + fanSpread * 0.5;
             const baseCY = 71;
 
+            // Sprout midpoint coordinates
+            const mx = (flower.x + cx) / 2;
+            const my = (yPct + cy) / 2;
+            const isLeft = flower.x < 50;
+            const sproutDir = isLeft ? 1 : -1;
+
             return (
-              <g key={`stem-${flower.id}`} opacity="0.75">
-                {/* Upper curved stem */}
+              <g key={`stem-${flower.id}`} opacity="0.82">
+                {/* ─── UPPER STEM (3D Layered Paths) ─── */}
+                {/* Dark bark shadow base */}
+                <path
+                  d={`M ${flower.x} ${yPct} Q ${cx} ${cy} 50 58`}
+                  fill="none"
+                  stroke="#0f2b09"
+                  strokeWidth={compact ? "1.4" : "2.6"}
+                  strokeLinecap="round"
+                />
+                {/* Main gradient stem */}
                 <path
                   d={`M ${flower.x} ${yPct} Q ${cx} ${cy} 50 58`}
                   fill="none"
                   stroke="url(#stemGrad)"
-                  strokeWidth={compact ? "0.9" : "1.6"}
+                  strokeWidth={compact ? "0.9" : "1.8"}
                   strokeLinecap="round"
                 />
-                
-                {/* Lower gathered & fanned out stem */}
+                {/* Inner light-green highlight tube effect */}
+                <path
+                  d={`M ${flower.x} ${yPct} Q ${cx} ${cy} 50 58`}
+                  fill="none"
+                  stroke="#a7f3d0"
+                  strokeWidth={compact ? "0.3" : "0.55"}
+                  strokeLinecap="round"
+                  opacity="0.65"
+                />
+
+                {/* ─── ORGANIC SIDE LEAF SPROUT ─── */}
+                {/* Sprout stem */}
+                <path
+                  d={`M ${mx} ${my} Q ${mx + sproutDir * 3.5} ${my - 1} ${mx + sproutDir * 5} ${my - 3}`}
+                  fill="none"
+                  stroke="#166534"
+                  strokeWidth={compact ? "0.6" : "1.1"}
+                  strokeLinecap="round"
+                />
+                {/* Sprout watercolor leaf bud */}
+                <path
+                  d={`M ${mx + sproutDir * 5} ${my - 3} C ${mx + sproutDir * 6} ${my - 4.5}, ${mx + sproutDir * 5.5} ${my - 6.5}, ${mx + sproutDir * 3.5} ${my - 5.5} C ${mx + sproutDir * 2.5} ${my - 4.5}, ${mx + sproutDir * 3.5} ${my - 3.5}, ${mx + sproutDir * 5} ${my - 3}`}
+                  fill="#15803d"
+                  opacity="0.88"
+                />
+
+                {/* ─── LOWER GATHERED & FAN OUT STEMS (3D Layered Paths) ─── */}
+                {/* Lower shadow */}
                 <path
                   d={`M 50 58 Q ${baseCX} ${baseCY} ${baseTargetX} ${baseTargetY}`}
                   fill="none"
-                  stroke="#14532d"
-                  strokeWidth={compact ? "1.1" : "1.8"}
+                  stroke="#0f2a0b"
+                  strokeWidth={compact ? "1.6" : "2.8"}
                   strokeLinecap="round"
+                />
+                {/* Lower green */}
+                <path
+                  d={`M 50 58 Q ${baseCX} ${baseCY} ${baseTargetX} ${baseTargetY}`}
+                  fill="none"
+                  stroke="#166534"
+                  strokeWidth={compact ? "1.0" : "1.9"}
+                  strokeLinecap="round"
+                />
+                {/* Lower highlight */}
+                <path
+                  d={`M 50 58 Q ${baseCX} ${baseCY} ${baseTargetX} ${baseTargetY}`}
+                  fill="none"
+                  stroke="#4ade80"
+                  strokeWidth={compact ? "0.3" : "0.5"}
+                  strokeLinecap="round"
+                  opacity="0.55"
                 />
               </g>
             );
@@ -524,6 +596,9 @@ export default function BouquetPreview({
           const isFoliageItem = ['leaf_green', 'leaf_fern', 'leaf_eucalyptus'].includes(flower.type);
           const bloomSize = getBloomSize(flower.type);
           
+          const sizeStr = isFoliageItem ? (compact ? '1.7rem' : '2.7rem') : `${bloomSize}rem`;
+          const halfSizeStr = isFoliageItem ? (compact ? '-0.85rem' : '-1.35rem') : `-${bloomSize / 2}rem`;
+
           return (
             <motion.div
               key={flower.id}
@@ -548,9 +623,10 @@ export default function BouquetPreview({
                 position: 'absolute',
                 left: `${flower.x}%`,
                 top: `${flower.y}%`,
-                transform: 'translate(-50%, -50%)',
-                width: isFoliageItem ? (compact ? '1.7rem' : '2.7rem') : `${bloomSize}rem`,
-                height: isFoliageItem ? (compact ? '1.7rem' : '2.7rem') : `${bloomSize}rem`,
+                width: sizeStr,
+                height: sizeStr,
+                marginLeft: halfSizeStr,
+                marginTop: halfSizeStr,
                 zIndex: isSelected ? 100 : flower.zIndex,
                 cursor: onFlowerDrag ? 'grab' : 'default',
                 userSelect: 'none',

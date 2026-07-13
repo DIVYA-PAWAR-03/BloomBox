@@ -292,40 +292,68 @@ export default function RecipientPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.6 }}
-              className="w-full max-w-xl flex flex-col items-center space-y-8"
+              className="w-full max-w-5xl mx-auto"
             >
               {/* Header Title */}
-              <div className="text-center space-y-2">
-                <span className="text-[10px] uppercase font-bold tracking-widest text-rose-400">
+              <div className="text-center mb-8 space-y-2">
+                <span className="text-xs uppercase font-bold tracking-widest text-rose-400 block">
                   BloomBox
                 </span>
-                <h2 className="text-3xl md:text-4xl font-heading text-rose-900">
+                <h2 className="text-3xl md:text-5xl font-heading text-rose-900 leading-snug">
                   Hi, I made this bouquet for you!
                 </h2>
+                {gift.sender_name && (
+                  <p className="font-serif text-lg text-rose-400 italic">
+                    A special gift from {gift.sender_name}
+                  </p>
+                )}
               </div>
 
-              {/* High Fidelity Bouquet Render */}
-              <div className="relative flex justify-center items-center p-4 bg-white/40 rounded-3xl border border-rose-100/40 shadow-sm">
-                <BouquetPreview
-                  style={gift.bouquet_style}
-                  flowers={normalizedFlowers}
-                  fillers={gift.fillers}
-                  wrapping={gift.wrapping}
-                  ribbon={gift.ribbon}
-                  extras={gift.extras}
-                />
-              </div>
+              {/* Main Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                {/* Left Column: Bouquet Preview */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5 }}
+                  className="lg:col-span-6 flex flex-col items-center justify-center bg-white rounded-3xl p-6 shadow-md border border-rose-100/50"
+                >
+                  <h3 className="font-heading text-xl text-stone-700 mb-4 self-start pl-2">
+                    Your Bouquet
+                  </h3>
+                  <div className="w-full max-w-85 aspect-3/4 relative">
+                    <BouquetPreview
+                      style={gift.bouquet_style}
+                      flowers={normalizedFlowers}
+                      fillers={gift.fillers}
+                      wrapping={gift.wrapping}
+                      ribbon={gift.ribbon}
+                      extras={gift.extras}
+                    />
+                  </div>
+                </motion.div>
 
-              {/* Interactive Unboxing Envelope & Letter */}
-              <div className="w-full">
-                <EnvelopeUnboxer
-                  envelope={gift.envelope}
-                  letterTemplate={gift.letter_template}
-                  recipientName={gift.recipient_name}
-                  message={gift.message}
-                  senderName={gift.sender_name}
-                  onComplete={() => setUnboxingFinished(true)}
-                />
+                {/* Right Column: Envelope & Letter */}
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: 0.15 }}
+                  className="lg:col-span-6 space-y-6"
+                >
+                  <div className="bg-white rounded-3xl p-6 shadow-md border border-rose-100/50 space-y-4">
+                    <h3 className="font-heading text-xl text-rose-900 border-b border-rose-100 pb-2">
+                      Handwritten Letter
+                    </h3>
+                    <EnvelopeUnboxer
+                      envelope={gift.envelope}
+                      letterTemplate={gift.letter_template}
+                      recipientName={gift.recipient_name}
+                      message={gift.message}
+                      senderName={gift.sender_name}
+                      onComplete={() => setUnboxingFinished(true)}
+                    />
+                  </div>
+                </motion.div>
               </div>
 
               {/* Reactions & Comments (Once message typing finishes) */}
@@ -334,7 +362,7 @@ export default function RecipientPage() {
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6 }}
-                  className="mt-12 space-y-8 w-full"
+                  className="mt-16 space-y-8 max-w-2xl mx-auto w-full"
                 >
                   {/* React Section */}
                   <div className="text-center space-y-4">
