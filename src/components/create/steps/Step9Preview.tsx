@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useBouquetStore } from '@/store/useBouquetStore';
 import BouquetPreview from '../BouquetPreview';
@@ -13,7 +13,7 @@ import {
   ENVELOPE_OPTIONS,
   EXTRA_OPTIONS,
 } from '@/types/bouquet';
-import { Copy, Send, Mail, Heart, Check, Sparkles, Loader2 } from 'lucide-react';
+import { Copy, Send, Mail, Heart, Check, Sparkles, Loader2, RefreshCw } from 'lucide-react';
 
 export default function Step9Preview() {
   const store = useBouquetStore();
@@ -30,6 +30,13 @@ export default function Step9Preview() {
   const selectedExtras = store.extras.map((extraId) =>
     EXTRA_OPTIONS.find((e) => e.id === extraId)
   ).filter(Boolean);
+
+  useEffect(() => {
+    // Automatically clear legacy long u_ links if present in store
+    if (store.shareUrl && store.shareUrl.includes('/gift/u_')) {
+      store.setShareUrl(null);
+    }
+  }, [store]);
 
   const saveGift = async () => {
     setLoading(true);
@@ -51,10 +58,14 @@ export default function Step9Preview() {
           envelope: store.envelope,
         }),
       });
-      const { shareCode } = await res.json();
-      const url = `${window.location.origin}/gift/${shareCode}`;
+      const data = await res.json();
+      if (!res.ok || !data.shareCode) {
+        console.error('Failed to generate gift link:', data);
+        return;
+      }
+      const url = `${window.location.origin}/gift/${data.shareCode}`;
       store.setShareUrl(url);
-      store.setGiftId(shareCode);
+      store.setGiftId(data.shareCode);
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 5000);
     } catch (e) {
@@ -243,7 +254,7 @@ export default function Step9Preview() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={handleCopy}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold bg-stone-900 text-white hover:bg-stone-800 transition-colors"
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold bg-stone-900 text-white hover:bg-stone-800 transition-colors shrink-0"
                   >
                     {copied ? (
                       <>
@@ -258,6 +269,16 @@ export default function Step9Preview() {
                     )}
                   </motion.button>
                 </div>
+
+                {/* Regenerate button */}
+                <button
+                  onClick={saveGift}
+                  disabled={loading}
+                  className="text-xs text-rose-500 hover:text-rose-600 underline font-medium flex items-center justify-center gap-1 mx-auto pt-1"
+                >
+                  <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+                  Generate New Short Link
+                </button>
 
                 {/* Social buttons */}
                 <div className="space-y-3 pt-2">

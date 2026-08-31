@@ -49,7 +49,7 @@ function writeLocalGift(shareCode: string, giftData: any) {
 function generateShareCode(): string {
   const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
   let code = '';
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < 6; i++) {
     code += chars[Math.floor(Math.random() * chars.length)];
   }
   return code;
@@ -76,66 +76,25 @@ export async function POST(req: NextRequest) {
       created_at: new Date().toISOString(),
     };
 
-    // Compact fallback data helper for read-only environments (Vercel serverless)
-    const getFallbackCode = () => {
-      const compactData: any = {};
-      if (body.bouquet_style && body.bouquet_style !== 'classic') {
-        compactData.sty = body.bouquet_style;
+    // Always save to local database
+    writeLocalGift(shareCode, giftData);
+
+    // Save to Supabase if configured
+    if (supabase) {
+      try {
+        const { error } = await supabase
+          .from('bloombox_gifts')
+          .insert([giftData]);
+
+        if (error) {
+          console.error('Supabase error while saving gift:', error);
+        }
+      } catch (err) {
+        console.error('Supabase insert exception:', err);
       }
-      
-      const flData = (body.flowers || []).map((f: any) => [
-        f.type,
-        Math.round(f.x),
-        Math.round(f.y),
-        Math.round(f.rotation),
-        parseFloat(f.scale.toFixed(2)),
-      ]);
-      if (flData.length > 0) {
-        compactData.fl = flData;
-      }
-
-      // Default fillers are baby_breath, green_leaves, eucalyptus
-      const defaultFillers = ['baby_breath', 'green_leaves', 'eucalyptus'];
-      const hasCustomFillers = !body.fillers || 
-        body.fillers.length !== 3 || 
-        !body.fillers.includes('baby_breath') || 
-        !body.fillers.includes('green_leaves') || 
-        !body.fillers.includes('eucalyptus');
-      if (hasCustomFillers && body.fillers) {
-        compactData.fi = body.fillers;
-      }
-
-      if (body.wrapping && body.wrapping !== 'white') compactData.wr = body.wrapping;
-      if (body.ribbon && body.ribbon !== 'pink') compactData.ri = body.ribbon;
-      if (body.extras && body.extras.length > 0) compactData.ex = body.extras;
-      if (body.letter_template && body.letter_template !== 'love') compactData.lt = body.letter_template;
-      if (body.recipient_name) compactData.rec = body.recipient_name;
-      if (body.message) compactData.msg = body.message;
-      if (body.sender_name) compactData.sen = body.sender_name;
-      if (body.envelope && body.envelope !== 'classic') compactData.ev = body.envelope;
-
-      return 'u_' + Buffer.from(JSON.stringify(compactData)).toString('base64url');
-    };
-
-    if (!supabase) {
-      console.log('Supabase not configured. Using compressed URL-encoded fallback.');
-      const fallbackCode = getFallbackCode();
-      return NextResponse.json({ shareCode: fallbackCode });
     }
 
-    const { data, error } = await supabase
-      .from('bloombox_gifts')
-      .insert([giftData])
-      .select('share_code')
-      .single();
-
-    if (error) {
-      console.error('Supabase error, falling back to URL-encoded fallback:', error);
-      const fallbackCode = getFallbackCode();
-      return NextResponse.json({ shareCode: fallbackCode });
-    }
-
-    return NextResponse.json({ shareCode: data.share_code });
+    return NextResponse.json({ shareCode });
   } catch (e) {
     console.error('API error:', e);
     return NextResponse.json({ error: 'Failed to save gift' }, { status: 500 });
