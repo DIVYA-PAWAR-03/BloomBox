@@ -92,11 +92,19 @@ export default function CreatePage() {
                     </span>
                   )}
                 </div>
-                <p className="text-[10px] text-stone-400 mt-2">
-                  {store.arrangementPattern === 'custom'
-                    ? 'Drag any flower in the preview to custom-arrange'
-                    : 'Switch presets above or drag flowers in the preview to customize'}
-                </p>
+                <div className="flex justify-center items-center gap-2 mt-2">
+                  <button
+                    type="button"
+                    onClick={() => store.setWrapping(store.wrapping === 'none' ? 'white' : 'none')}
+                    className={`px-3.5 py-1 rounded-full text-xs font-semibold border transition-all cursor-pointer ${
+                      store.wrapping === 'none'
+                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
+                        : 'bg-white text-stone-600 border-stone-200 hover:border-rose-300'
+                    }`}
+                  >
+                    {store.wrapping === 'none' ? '🌿 Bare Stems (No Wrap)' : '🎀 Paper Wrap On'}
+                  </button>
+                </div>
               </div>
 
               {/* Live Bouquet Preview wrapper */}

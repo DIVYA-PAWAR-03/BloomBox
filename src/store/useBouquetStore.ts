@@ -524,7 +524,7 @@ const initialState = {
   flowers: [] as FlowerItem[],
   arrangementPattern: 'dome' as 'dome' | 'heart' | 'cascade' | 'custom',
   fillers: defaultFillers,
-  wrapping: 'white' as WrappingColor,
+  wrapping: 'none' as WrappingColor,
   ribbon: 'red' as RibbonColor,
   extras: [] as ExtraType[],
   letterTemplate: 'love' as LetterTemplate,
