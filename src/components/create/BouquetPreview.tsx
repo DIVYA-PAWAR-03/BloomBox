@@ -95,6 +95,8 @@ function getFillerPositions(fillerType: FillerType, count: number, fillerIndex: 
 
 function getWrappingGradientStops(colorId: WrappingColor) {
   switch (colorId) {
+    case 'none':
+      return [{ offset: '0%', color: '#22c55e' }, { offset: '100%', color: '#15803d' }];
     case 'white':
       return [{ offset: '0%', color: '#ffffff' }, { offset: '100%', color: '#cbd5e1' }];
     case 'pink':
@@ -390,24 +392,26 @@ export default function BouquetPreview({
         {/* ══════════════════════════════════════════════════════════════════
             LAYER 1 — BACK WRAPPING PAPER (Premium watercolor sheets)
            ══════════════════════════════════════════════════════════════════ */}
-        <img
-          src={`/assets/wrappers/back-${wrapping}.svg`}
-          alt={`${wrapping} back wrapper`}
-          style={{
-            position: 'absolute',
-            inset: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: 'contain',
-            pointerEvents: 'none',
-            zIndex: 5,
-            transform: `scaleX(${wrapperScaleX})`,
-            transformOrigin: 'bottom center',
-            transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
-            filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.06))',
-          }}
-          aria-hidden
-        />
+        {wrapping !== 'none' && (
+          <img
+            src={`/assets/wrappers/back-${wrapping}.svg`}
+            alt={`${wrapping} back wrapper`}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain',
+              pointerEvents: 'none',
+              zIndex: 5,
+              transform: `scaleX(${wrapperScaleX})`,
+              transformOrigin: 'bottom center',
+              transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
+              filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.06))',
+            }}
+            aria-hidden
+          />
+        )}
 
         {/* ══════════════════════════════════════════════════════════════════
             LAYER 2 — AUTOMATIC BEHIND-FLOWER LEAVES (Watercolor Foliage)
@@ -701,23 +705,25 @@ export default function BouquetPreview({
         {/* ══════════════════════════════════════════════════════════════════
             LAYER 6 — FRONT WRAPPING PAPER COLLAR (Premium overlapping folds)
            ══════════════════════════════════════════════════════════════════ */}
-        <img
-          src={`/assets/wrappers/front-${wrapping}.svg`}
-          alt={`${wrapping} front wrapper`}
-          style={{
-            position: 'absolute',
-            inset: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: 'contain',
-            pointerEvents: 'none',
-            zIndex: 13,
-            transform: `scaleX(${wrapperScaleX})`,
-            transformOrigin: 'bottom center',
-            transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
-          }}
-          aria-hidden
-        />
+        {wrapping !== 'none' && (
+          <img
+            src={`/assets/wrappers/front-${wrapping}.svg`}
+            alt={`${wrapping} front wrapper`}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain',
+              pointerEvents: 'none',
+              zIndex: 13,
+              transform: `scaleX(${wrapperScaleX})`,
+              transformOrigin: 'bottom center',
+              transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
+            }}
+            aria-hidden
+          />
+        )}
 
         {/* ══════════════════════════════════════════════════════════════════
             LAYER 7 — WATERCOLOR RIBBON BOW (Placed precisely at cinch point)

@@ -52,6 +52,7 @@ export type FillerType =
   | 'small_fillers';
 
 export type WrappingColor =
+  | 'none'
   | 'white'
   | 'pink'
   | 'cream'
@@ -436,6 +437,7 @@ export interface WrappingDef {
 }
 
 export const WRAPPING_OPTIONS: WrappingDef[] = [
+  { id: 'none',         label: 'Bare Stems (No Wrap)', color: '#15803d', gradient: 'linear-gradient(135deg, #22c55e 0%, #15803d 100%)', textureClass: 'wrap-none' },
   { id: 'white',        label: 'White',         color: '#f9fafb', gradient: 'linear-gradient(135deg, #f9fafb 0%, #e5e7eb 100%)', textureClass: 'wrap-white' },
   { id: 'pink',         label: 'Pink',          color: '#fce7f3', gradient: 'linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%)', textureClass: 'wrap-pink' },
   { id: 'cream',        label: 'Cream',         color: '#fefce8', gradient: 'linear-gradient(135deg, #fefce8 0%, #fef3c7 100%)', textureClass: 'wrap-cream' },

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { motion } from 'framer-motion';
 import { useBouquetStore } from '@/store/useBouquetStore';
@@ -85,11 +85,19 @@ export default function Step4Wrapping() {
                     borderColor: `rgba(0,0,0,0.1) transparent transparent transparent`,
                   }}
                 />
+                {/* Stem icon for 'none' option */}
+                {wrap.id === 'none' && (
+                  <div className="absolute inset-0 flex items-center justify-center text-3xl">
+                    🌿
+                  </div>
+                )}
                 {/* Texture lines for paper feel */}
-                <div className="absolute inset-x-3 bottom-3 flex flex-col gap-1.5 opacity-20">
-                  <div className="h-px bg-current rounded" style={{ backgroundColor: isDark ? '#fff' : '#6b7280' }} />
-                  <div className="h-px bg-current rounded w-3/4" style={{ backgroundColor: isDark ? '#fff' : '#6b7280' }} />
-                </div>
+                {wrap.id !== 'none' && (
+                  <div className="absolute inset-x-3 bottom-3 flex flex-col gap-1.5 opacity-20">
+                    <div className="h-px bg-current rounded" style={{ backgroundColor: isDark ? '#fff' : '#6b7280' }} />
+                    <div className="h-px bg-current rounded w-3/4" style={{ backgroundColor: isDark ? '#fff' : '#6b7280' }} />
+                  </div>
+                )}
 
                 {/* Selected checkmark overlay */}
                 {isSelected && (
