@@ -588,6 +588,8 @@ export const useBouquetStore = create<BouquetState>()(
         const flowerDef = FLOWER_CATALOGUE.find((f) => f.type === type);
         if (!flowerDef) return;
 
+        if (get().flowers.length >= 30) return;
+
         set((s) => {
           const emptiest = findEmptiestPosition(s.flowers);
           const newFlower: FlowerItem = {

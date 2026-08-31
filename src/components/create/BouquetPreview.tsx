@@ -436,7 +436,7 @@ export default function BouquetPreview({
         </div>
 
         {/* ══════════════════════════════════════════════════════════════════
-            LAYER 3 — DYNAMIC BEZIER FLOWER STEMS (Converging to Ribbon neck)
+            LAYER 3 — REALISTIC ORGANIC FLOWER STEMS & LEAF NODES
            ══════════════════════════════════════════════════════════════════ */}
         <svg
           viewBox="0 0 100 100"
@@ -452,107 +452,142 @@ export default function BouquetPreview({
           aria-hidden
         >
           <defs>
-            <linearGradient id="stemGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <linearGradient id="roseStemGrad" x1="0%" y1="0%" x2="0%" y2="100%">
               <stop offset="0%" stopColor="#22c55e" />
-              <stop offset="50%" stopColor="#15803d" />
+              <stop offset="40%" stopColor="#15803d" />
               <stop offset="100%" stopColor="#14532d" />
+            </linearGradient>
+            <linearGradient id="leafGradLeft" x1="100%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#4ade80" />
+              <stop offset="100%" stopColor="#15803d" />
+            </linearGradient>
+            <linearGradient id="leafGradRight" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#4ade80" />
+              <stop offset="100%" stopColor="#15803d" />
             </linearGradient>
           </defs>
           
           {flowers.map((flower) => {
-            // Cap stem starting point at the flower head center
-            const yPct = Math.min(flower.y, 62);
+            const isSingle = flowers.length === 1;
+            const startY = Math.min(flower.y + 4, 55);
+            const cinchY = 58;
             
-            // Stems curve organically towards the cinch point (50, 58)
-            const cx = 50 + (flower.x - 50) * 0.45;
-            const cy = yPct + (58 - yPct) * 0.55;
+            // Stems curve organically towards the cinch point (50, cinchY)
+            const cx = 50 + (flower.x - 50) * 0.4;
+            const cy = startY + (cinchY - startY) * 0.5;
             
             // Seeded random target Y for uneven, realistic stem cuts
             const pseudoRandom = Math.sin(flower.x * 47.3 + flower.y * 19.8);
-            const baseTargetY = 84 + pseudoRandom * 3.5; // uneven cut length between 80.5% and 87.5%
+            const baseTargetY = 84 + pseudoRandom * 3.5;
 
-            // Lower fanned stem: extends from cinch point (50, 58) to fanned base
-            const fanSpread = (flower.x - 50) * 0.22;
+            // Lower fanned stem: extends from cinch point (50, cinchY) to fanned base
+            const fanSpread = (flower.x - 50) * 0.28;
             const baseTargetX = 50 + fanSpread;
             const baseCX = 50 + fanSpread * 0.5;
             const baseCY = 71;
 
-            // Sprout midpoint coordinates
-            const mx = (flower.x + cx) / 2;
-            const my = (yPct + cy) / 2;
-            const isLeft = flower.x < 50;
-            const sproutDir = isLeft ? 1 : -1;
+            // Leaf nodes along upper stem
+            const leafNodes = [];
+            if (isSingle) {
+              // Single rose stem gets 4 prominent realistic leaves matching reference photo!
+              leafNodes.push(
+                { x: 44, y: 34, dir: -1, angle: -35, scale: 1.2 },
+                { x: 56, y: 36, dir: 1,  angle: 35,  scale: 1.2 },
+                { x: 43, y: 46, dir: -1, angle: -25, scale: 1.1 },
+                { x: 57, y: 48, dir: 1,  angle: 25,  scale: 1.1 },
+              );
+            } else {
+              // Multi-rose arrangement gets leaf pairs branching out from mid-stems
+              const midX = (flower.x + cx) / 2;
+              const midY = (startY + cy) / 2;
+              const dir = flower.x < 50 ? -1 : 1;
+              leafNodes.push({
+                x: midX + dir * 2,
+                y: midY,
+                dir,
+                angle: dir * 30,
+                scale: 0.95 * flower.scale,
+              });
+            }
 
             return (
-              <g key={`stem-${flower.id}`} opacity="0.82">
-                {/* ─── UPPER STEM (3D Layered Paths) ─── */}
-                {/* Dark bark shadow base */}
+              <g key={`stem-${flower.id}`} opacity="0.92">
+                {/* Upper stem bark shadow */}
                 <path
-                  d={`M ${flower.x} ${yPct} Q ${cx} ${cy} 50 58`}
+                  d={`M ${flower.x} ${startY} Q ${cx} ${cy} 50 ${cinchY}`}
                   fill="none"
-                  stroke="#0f2b09"
-                  strokeWidth={compact ? "1.4" : "2.6"}
+                  stroke="#092107"
+                  strokeWidth={compact ? "1.6" : "3.0"}
                   strokeLinecap="round"
                 />
-                {/* Main gradient stem */}
+                {/* Upper stem gradient */}
                 <path
-                  d={`M ${flower.x} ${yPct} Q ${cx} ${cy} 50 58`}
+                  d={`M ${flower.x} ${startY} Q ${cx} ${cy} 50 ${cinchY}`}
                   fill="none"
-                  stroke="url(#stemGrad)"
-                  strokeWidth={compact ? "0.9" : "1.8"}
+                  stroke="url(#roseStemGrad)"
+                  strokeWidth={compact ? "1.0" : "2.1"}
                   strokeLinecap="round"
                 />
-                {/* Inner light-green highlight tube effect */}
+                {/* Upper stem tube highlight */}
                 <path
-                  d={`M ${flower.x} ${yPct} Q ${cx} ${cy} 50 58`}
+                  d={`M ${flower.x} ${startY} Q ${cx} ${cy} 50 ${cinchY}`}
                   fill="none"
-                  stroke="#a7f3d0"
-                  strokeWidth={compact ? "0.3" : "0.55"}
+                  stroke="#bbf7d0"
+                  strokeWidth={compact ? "0.3" : "0.6"}
                   strokeLinecap="round"
-                  opacity="0.65"
+                  opacity="0.75"
                 />
 
-                {/* ─── ORGANIC SIDE LEAF SPROUT ─── */}
-                {/* Sprout stem */}
-                <path
-                  d={`M ${mx} ${my} Q ${mx + sproutDir * 3.5} ${my - 1} ${mx + sproutDir * 5} ${my - 3}`}
-                  fill="none"
-                  stroke="#166534"
-                  strokeWidth={compact ? "0.6" : "1.1"}
-                  strokeLinecap="round"
-                />
-                {/* Sprout watercolor leaf bud */}
-                <path
-                  d={`M ${mx + sproutDir * 5} ${my - 3} C ${mx + sproutDir * 6} ${my - 4.5}, ${mx + sproutDir * 5.5} ${my - 6.5}, ${mx + sproutDir * 3.5} ${my - 5.5} C ${mx + sproutDir * 2.5} ${my - 4.5}, ${mx + sproutDir * 3.5} ${my - 3.5}, ${mx + sproutDir * 5} ${my - 3}`}
-                  fill="#15803d"
-                  opacity="0.88"
-                />
+                {/* Leaf nodes branching directly off stem */}
+                {leafNodes.map((leaf, li) => (
+                  <g key={`leaf-${flower.id}-${li}`} transform={`translate(${leaf.x}, ${leaf.y}) rotate(${leaf.angle}) scale(${leaf.scale})`}>
+                    {/* Leaf stem connection */}
+                    <path
+                      d="M 0 0 Q 2 -2 5 -4"
+                      fill="none"
+                      stroke="#14532d"
+                      strokeWidth="0.8"
+                    />
+                    {/* Organic leaf blade */}
+                    <path
+                      d="M 5 -4 C 10 -10, 16 -8, 18 0 C 14 6, 8 8, 5 -4 Z"
+                      fill={leaf.dir === -1 ? "url(#leafGradLeft)" : "url(#leafGradRight)"}
+                      stroke="#0f391b"
+                      strokeWidth="0.3"
+                    />
+                    {/* Leaf center vein */}
+                    <path
+                      d="M 5 -4 Q 11 -2 18 0"
+                      fill="none"
+                      stroke="#86efac"
+                      strokeWidth="0.4"
+                      opacity="0.8"
+                    />
+                  </g>
+                ))}
 
-                {/* ─── LOWER GATHERED & FAN OUT STEMS (3D Layered Paths) ─── */}
-                {/* Lower shadow */}
+                {/* Lower stem bundle */}
                 <path
-                  d={`M 50 58 Q ${baseCX} ${baseCY} ${baseTargetX} ${baseTargetY}`}
+                  d={`M 50 ${cinchY} Q ${baseCX} ${baseCY} ${baseTargetX} ${baseTargetY}`}
                   fill="none"
-                  stroke="#0f2a0b"
-                  strokeWidth={compact ? "1.6" : "2.8"}
+                  stroke="#082006"
+                  strokeWidth={compact ? "1.8" : "3.2"}
                   strokeLinecap="round"
                 />
-                {/* Lower green */}
                 <path
-                  d={`M 50 58 Q ${baseCX} ${baseCY} ${baseTargetX} ${baseTargetY}`}
+                  d={`M 50 ${cinchY} Q ${baseCX} ${baseCY} ${baseTargetX} ${baseTargetY}`}
                   fill="none"
-                  stroke="#166534"
-                  strokeWidth={compact ? "1.0" : "1.9"}
+                  stroke="url(#roseStemGrad)"
+                  strokeWidth={compact ? "1.1" : "2.2"}
                   strokeLinecap="round"
                 />
-                {/* Lower highlight */}
                 <path
-                  d={`M 50 58 Q ${baseCX} ${baseCY} ${baseTargetX} ${baseTargetY}`}
+                  d={`M 50 ${cinchY} Q ${baseCX} ${baseCY} ${baseTargetX} ${baseTargetY}`}
                   fill="none"
                   stroke="#4ade80"
                   strokeWidth={compact ? "0.3" : "0.5"}
                   strokeLinecap="round"
-                  opacity="0.55"
+                  opacity="0.65"
                 />
               </g>
             );
