@@ -549,9 +549,9 @@ export default function BouquetPreview({
         )}
 
         {/* ══════════════════════════════════════════════════════════════════
-            LAYER 7 — WATERCOLOR RIBBON BOW (Placed precisely at cinch point)
+            LAYER 7 — WATERCOLOR RIBBON BOW (Ties multiple flowers together)
            ══════════════════════════════════════════════════════════════════ */}
-        {ribbon !== 'none' && (
+        {flowers.length > 1 && (
           <div
             aria-label="Ribbon bow"
             style={{
@@ -566,7 +566,7 @@ export default function BouquetPreview({
             }}
           >
             <img
-              src={`/assets/ribbons/ribbon-${ribbon}.png`}
+              src={`/assets/ribbons/ribbon-${ribbon === 'none' ? 'red' : ribbon}.png`}
               alt={`${ribbon} ribbon`}
               style={{
                 width: '100%',

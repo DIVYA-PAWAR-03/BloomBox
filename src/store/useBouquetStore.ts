@@ -603,22 +603,24 @@ export const useBouquetStore = create<BouquetState>()(
           };
 
           const updated = [...s.flowers, newFlower];
+          const newRibbon = updated.length > 1 && s.ribbon === 'none' ? 'red' : s.ribbon;
           if (s.arrangementPattern === 'custom') {
             const resolved = resolveCollisions(updated);
-            return { flowers: resolved, selectedFlowerId: newFlower.id };
+            return { flowers: resolved, selectedFlowerId: newFlower.id, ribbon: newRibbon };
           }
           const arranged = arrangeFlowers(updated, s.arrangementPattern);
-          return { flowers: arranged, selectedFlowerId: newFlower.id };
+          return { flowers: arranged, selectedFlowerId: newFlower.id, ribbon: newRibbon };
         });
       },
 
       removeFlower: (id) => {
         set((s) => {
           const updated = s.flowers.filter((f) => f.id !== id);
+          const newRibbon = updated.length <= 1 ? 'none' : (s.ribbon === 'none' ? 'red' : s.ribbon);
           if (s.arrangementPattern === 'custom') {
-            return { flowers: updated };
+            return { flowers: updated, ribbon: newRibbon };
           }
-          return { flowers: arrangeFlowers(updated, s.arrangementPattern) };
+          return { flowers: arrangeFlowers(updated, s.arrangementPattern), ribbon: newRibbon };
         });
       },
 
