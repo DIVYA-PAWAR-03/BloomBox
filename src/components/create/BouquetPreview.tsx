@@ -415,229 +415,16 @@ export default function BouquetPreview({
         )}
 
         {/* ══════════════════════════════════════════════════════════════════
-            LAYER 2 — AUTOMATIC BEHIND-FLOWER LEAVES (Watercolor Foliage)
-           ══════════════════════════════════════════════════════════════════ */}
-        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 10 }}>
-          {automaticLeaves.map((leaf, idx) => (
-            <div
-              key={`bg-leaf-${idx}`}
-              style={{
-                position: 'absolute',
-                left: `${leaf.x}%`,
-                top: `${leaf.y}%`,
-                width: compact ? '24px' : '44px',
-                height: compact ? '24px' : '44px',
-                transform: `translate(-50%, -50%) rotate(${leaf.rotation}deg) scale(${leaf.scale})`,
-                opacity: 0.65,
-              }}
-            >
-              <FlowerAssetRenderer type={leaf.type} />
-            </div>
-          ))}
-        </div>
-
-        {/* ══════════════════════════════════════════════════════════════════
-            LAYER 3 — REALISTIC ORGANIC FLOWER STEMS & LEAF NODES
-           ══════════════════════════════════════════════════════════════════ */}
-        <svg
-          viewBox="0 0 100 100"
-          preserveAspectRatio="none"
-          style={{
-            position: 'absolute',
-            inset: 0,
-            width: '100%',
-            height: '100%',
-            pointerEvents: 'none',
-            zIndex: 12,
-          }}
-          aria-hidden
-        >
-          <defs>
-            <linearGradient id="roseStemGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#22c55e" />
-              <stop offset="40%" stopColor="#15803d" />
-              <stop offset="100%" stopColor="#14532d" />
-            </linearGradient>
-            <linearGradient id="leafGradLeft" x1="100%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#4ade80" />
-              <stop offset="100%" stopColor="#15803d" />
-            </linearGradient>
-            <linearGradient id="leafGradRight" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#4ade80" />
-              <stop offset="100%" stopColor="#15803d" />
-            </linearGradient>
-          </defs>
-          
-          {flowers.map((flower) => {
-            const isSingle = flowers.length === 1;
-            const startY = Math.min(flower.y + 4, 55);
-            const cinchY = 58;
-            
-            // Stems curve organically towards the cinch point (50, cinchY)
-            const cx = 50 + (flower.x - 50) * 0.4;
-            const cy = startY + (cinchY - startY) * 0.5;
-            
-            // Seeded random target Y for uneven, realistic stem cuts
-            const pseudoRandom = Math.sin(flower.x * 47.3 + flower.y * 19.8);
-            const baseTargetY = 84 + pseudoRandom * 3.5;
-
-            // Lower fanned stem: extends from cinch point (50, cinchY) to fanned base
-            const fanSpread = (flower.x - 50) * 0.28;
-            const baseTargetX = 50 + fanSpread;
-            const baseCX = 50 + fanSpread * 0.5;
-            const baseCY = 71;
-
-            // Leaf nodes along upper stem
-            const leafNodes = [];
-            if (isSingle) {
-              // Single rose stem gets 4 prominent realistic leaves matching reference photo!
-              leafNodes.push(
-                { x: 44, y: 34, dir: -1, angle: -35, scale: 1.2 },
-                { x: 56, y: 36, dir: 1,  angle: 35,  scale: 1.2 },
-                { x: 43, y: 46, dir: -1, angle: -25, scale: 1.1 },
-                { x: 57, y: 48, dir: 1,  angle: 25,  scale: 1.1 },
-              );
-            } else {
-              // Multi-rose arrangement gets leaf pairs branching out from mid-stems
-              const midX = (flower.x + cx) / 2;
-              const midY = (startY + cy) / 2;
-              const dir = flower.x < 50 ? -1 : 1;
-              leafNodes.push({
-                x: midX + dir * 2,
-                y: midY,
-                dir,
-                angle: dir * 30,
-                scale: 0.95 * flower.scale,
-              });
-            }
-
-            return (
-              <g key={`stem-${flower.id}`} opacity="0.92">
-                {/* Upper stem bark shadow */}
-                <path
-                  d={`M ${flower.x} ${startY} Q ${cx} ${cy} 50 ${cinchY}`}
-                  fill="none"
-                  stroke="#092107"
-                  strokeWidth={compact ? "1.6" : "3.0"}
-                  strokeLinecap="round"
-                />
-                {/* Upper stem gradient */}
-                <path
-                  d={`M ${flower.x} ${startY} Q ${cx} ${cy} 50 ${cinchY}`}
-                  fill="none"
-                  stroke="url(#roseStemGrad)"
-                  strokeWidth={compact ? "1.0" : "2.1"}
-                  strokeLinecap="round"
-                />
-                {/* Upper stem tube highlight */}
-                <path
-                  d={`M ${flower.x} ${startY} Q ${cx} ${cy} 50 ${cinchY}`}
-                  fill="none"
-                  stroke="#bbf7d0"
-                  strokeWidth={compact ? "0.3" : "0.6"}
-                  strokeLinecap="round"
-                  opacity="0.75"
-                />
-
-                {/* Leaf nodes branching directly off stem */}
-                {leafNodes.map((leaf, li) => (
-                  <g key={`leaf-${flower.id}-${li}`} transform={`translate(${leaf.x}, ${leaf.y}) rotate(${leaf.angle}) scale(${leaf.scale})`}>
-                    {/* Leaf stem connection */}
-                    <path
-                      d="M 0 0 Q 2 -2 5 -4"
-                      fill="none"
-                      stroke="#14532d"
-                      strokeWidth="0.8"
-                    />
-                    {/* Organic leaf blade */}
-                    <path
-                      d="M 5 -4 C 10 -10, 16 -8, 18 0 C 14 6, 8 8, 5 -4 Z"
-                      fill={leaf.dir === -1 ? "url(#leafGradLeft)" : "url(#leafGradRight)"}
-                      stroke="#0f391b"
-                      strokeWidth="0.3"
-                    />
-                    {/* Leaf center vein */}
-                    <path
-                      d="M 5 -4 Q 11 -2 18 0"
-                      fill="none"
-                      stroke="#86efac"
-                      strokeWidth="0.4"
-                      opacity="0.8"
-                    />
-                  </g>
-                ))}
-
-                {/* Lower stem bundle */}
-                <path
-                  d={`M 50 ${cinchY} Q ${baseCX} ${baseCY} ${baseTargetX} ${baseTargetY}`}
-                  fill="none"
-                  stroke="#082006"
-                  strokeWidth={compact ? "1.8" : "3.2"}
-                  strokeLinecap="round"
-                />
-                <path
-                  d={`M 50 ${cinchY} Q ${baseCX} ${baseCY} ${baseTargetX} ${baseTargetY}`}
-                  fill="none"
-                  stroke="url(#roseStemGrad)"
-                  strokeWidth={compact ? "1.1" : "2.2"}
-                  strokeLinecap="round"
-                />
-                <path
-                  d={`M 50 ${cinchY} Q ${baseCX} ${baseCY} ${baseTargetX} ${baseTargetY}`}
-                  fill="none"
-                  stroke="#4ade80"
-                  strokeWidth={compact ? "0.3" : "0.5"}
-                  strokeLinecap="round"
-                  opacity="0.65"
-                />
-              </g>
-            );
-          })}
-        </svg>
-
-        {/* ══════════════════════════════════════════════════════════════════
-            LAYER 4 — FILLER ELEMENTS
-           ══════════════════════════════════════════════════════════════════ */}
-        {fillers.map((filler, fi) => {
-          const emojis = FILLER_EMOJI[filler] ?? ['✿'];
-          const count = compact ? Math.min(emojis.length, 3) : emojis.length + 3;
-          const positions = getFillerPositions(filler, count, fi);
-          return positions.map((pos, pi) => (
-            <div
-              key={`${filler}-${pi}`}
-              aria-hidden
-              style={{
-                position: 'absolute',
-                left: `${pos.x}%`,
-                top: `${pos.y}%`,
-                fontSize: FILLER_SIZE[filler],
-                transform: `rotate(${pos.rotation}deg)`,
-                color: FILLER_COLOR[filler],
-                opacity: fillerOpacity * (0.65 + seededRandom(fi * 37 + pi) * 0.35),
-                zIndex: 14,
-                pointerEvents: 'none',
-                userSelect: 'none',
-                lineHeight: 1,
-                textShadow: filler === 'small_fillers'
-                  ? `0 0 6px ${FILLER_COLOR[filler]}`
-                  : 'none',
-              }}
-            >
-              {emojis[pi % emojis.length]}
-            </div>
-          ));
-        })}
-
-        {/* ══════════════════════════════════════════════════════════════════
-            LAYER 5 — FLOWER HEADS
+            LAYER 5 — FLOWERS WITH THEIR OWN NATURAL LONG STEMS
            ══════════════════════════════════════════════════════════════════ */}
         {flowers.map((flower) => {
           const isSelected = flower.id === selectedFlowerId;
           const isFoliageItem = ['leaf_green', 'leaf_fern', 'leaf_eucalyptus'].includes(flower.type);
           const bloomSize = getBloomSize(flower.type);
           
-          const sizeStr = isFoliageItem ? (compact ? '1.7rem' : '2.7rem') : `${bloomSize}rem`;
-          const halfSizeStr = isFoliageItem ? (compact ? '-0.85rem' : '-1.35rem') : `-${bloomSize / 2}rem`;
+          const widthStr = isFoliageItem ? (compact ? '1.7rem' : '2.7rem') : `${bloomSize}rem`;
+          const heightStr = isFoliageItem ? (compact ? '1.7rem' : '2.7rem') : (compact ? '7.5rem' : '13rem');
+          const halfWidthStr = isFoliageItem ? (compact ? '-0.85rem' : '-1.35rem') : `-${bloomSize / 2}rem`;
 
           return (
             <motion.div
@@ -663,10 +450,10 @@ export default function BouquetPreview({
                 position: 'absolute',
                 left: `${flower.x}%`,
                 top: `${flower.y}%`,
-                width: sizeStr,
-                height: sizeStr,
-                marginLeft: halfSizeStr,
-                marginTop: halfSizeStr,
+                width: widthStr,
+                height: heightStr,
+                marginLeft: halfWidthStr,
+                marginTop: '-0.5rem',
                 zIndex: isSelected ? 100 : flower.zIndex,
                 cursor: onFlowerDrag ? 'grab' : 'default',
                 userSelect: 'none',
@@ -675,8 +462,8 @@ export default function BouquetPreview({
                   : 'drop-shadow(0 3px 6px rgba(0,0,0,0.1))',
                 outline: isSelected ? '2px dashed #f43f5e' : 'none',
                 outlineOffset: '4px',
-                borderRadius: '50%',
-                backgroundColor: isSelected ? 'rgba(244,63,94,0.06)' : isFoliageItem ? 'transparent' : 'rgba(255,255,255,0.04)',
+                borderRadius: '8px',
+                backgroundColor: isSelected ? 'rgba(244,63,94,0.06)' : 'transparent',
                 padding: isSelected ? '4px' : '0px',
               }}
               whileHover={onFlowerDrag ? { scale: isSelected ? flower.scale * 1.24 : flower.scale * 1.12 } : {}}
