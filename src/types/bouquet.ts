@@ -63,6 +63,7 @@ export type WrappingColor =
   | 'pastel';
 
 export type RibbonColor =
+  | 'none'
   | 'white'
   | 'pink'
   | 'red'
@@ -456,6 +457,7 @@ export interface RibbonDef {
 }
 
 export const RIBBON_OPTIONS: RibbonDef[] = [
+  { id: 'none',  label: 'No Ribbon', color: 'transparent', darkColor: 'transparent' },
   { id: 'white', label: 'White',  color: '#f9fafb', darkColor: '#d1d5db' },
   { id: 'pink',  label: 'Pink',   color: '#f472b6', darkColor: '#db2777' },
   { id: 'red',   label: 'Red',    color: '#ef4444', darkColor: '#b91c1c' },

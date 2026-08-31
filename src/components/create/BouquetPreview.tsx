@@ -231,6 +231,7 @@ export default function BouquetPreview({
   // Dynamic automatic leaves generation behind flowers
   const automaticLeaves = useMemo(() => {
     if (!flowers || flowers.length === 0) return [];
+    if (wrapping === 'none' || !fillers || fillers.length === 0) return [];
     
     // Calculate centroid of the flower cluster
     const count = flowers.length;
@@ -763,31 +764,33 @@ export default function BouquetPreview({
         {/* ══════════════════════════════════════════════════════════════════
             LAYER 7 — WATERCOLOR RIBBON BOW (Placed precisely at cinch point)
            ══════════════════════════════════════════════════════════════════ */}
-        <div
-          aria-label="Ribbon bow"
-          style={{
-            position: 'absolute',
-            top: '58%', // exact cinch point Y
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            zIndex: 35,
-            width: compact ? 70 : 120,
-            height: compact ? 30 : 50,
-            pointerEvents: 'none',
-          }}
-        >
-          <img
-            src={`/assets/ribbons/ribbon-${ribbon}.png`}
-            alt={`${ribbon} ribbon`}
+        {ribbon !== 'none' && (
+          <div
+            aria-label="Ribbon bow"
             style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'contain',
+              position: 'absolute',
+              top: '58%', // exact cinch point Y
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              zIndex: 35,
+              width: compact ? 70 : 120,
+              height: compact ? 30 : 50,
               pointerEvents: 'none',
-              filter: 'drop-shadow(0 2.5px 2.5px rgba(0, 0, 0, 0.25))',
             }}
-          />
-        </div>
+          >
+            <img
+              src={`/assets/ribbons/ribbon-${ribbon}.png`}
+              alt={`${ribbon} ribbon`}
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'contain',
+                pointerEvents: 'none',
+                filter: 'drop-shadow(0 2.5px 2.5px rgba(0, 0, 0, 0.25))',
+              }}
+            />
+          </div>
+        )}
 
         {/* ══════════════════════════════════════════════════════════════════
             LAYER 8 — SPARKLE ACCENTS (non-compact only)
