@@ -523,9 +523,9 @@ const initialState = {
   bouquetStyle: 'classic' as BouquetStyle,
   flowers: [] as FlowerItem[],
   arrangementPattern: 'dome' as 'dome' | 'heart' | 'cascade' | 'custom',
-  fillers: [] as FillerType[],
-  wrapping: 'none' as WrappingColor,
-  ribbon: 'none' as RibbonColor,
+  fillers: defaultFillers,
+  wrapping: 'white' as WrappingColor,
+  ribbon: 'red' as RibbonColor,
   extras: [] as ExtraType[],
   letterTemplate: 'love' as LetterTemplate,
   recipientName: '',
@@ -603,24 +603,22 @@ export const useBouquetStore = create<BouquetState>()(
           };
 
           const updated = [...s.flowers, newFlower];
-          const newRibbon = updated.length > 1 && s.ribbon === 'none' ? 'red' : s.ribbon;
           if (s.arrangementPattern === 'custom') {
             const resolved = resolveCollisions(updated);
-            return { flowers: resolved, selectedFlowerId: newFlower.id, ribbon: newRibbon };
+            return { flowers: resolved, selectedFlowerId: newFlower.id };
           }
           const arranged = arrangeFlowers(updated, s.arrangementPattern);
-          return { flowers: arranged, selectedFlowerId: newFlower.id, ribbon: newRibbon };
+          return { flowers: arranged, selectedFlowerId: newFlower.id };
         });
       },
 
       removeFlower: (id) => {
         set((s) => {
           const updated = s.flowers.filter((f) => f.id !== id);
-          const newRibbon = updated.length <= 1 ? 'none' : (s.ribbon === 'none' ? 'red' : s.ribbon);
           if (s.arrangementPattern === 'custom') {
-            return { flowers: updated, ribbon: newRibbon };
+            return { flowers: updated };
           }
-          return { flowers: arrangeFlowers(updated, s.arrangementPattern), ribbon: newRibbon };
+          return { flowers: arrangeFlowers(updated, s.arrangementPattern) };
         });
       },
 

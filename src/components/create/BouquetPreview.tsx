@@ -231,7 +231,6 @@ export default function BouquetPreview({
   // Dynamic automatic leaves generation behind flowers
   const automaticLeaves = useMemo(() => {
     if (!flowers || flowers.length === 0) return [];
-    if (wrapping === 'none' || !fillers || fillers.length === 0) return [];
     
     // Calculate centroid of the flower cluster
     const count = flowers.length;
@@ -415,16 +414,194 @@ export default function BouquetPreview({
         )}
 
         {/* ══════════════════════════════════════════════════════════════════
-            LAYER 5 — FLOWERS WITH THEIR OWN NATURAL LONG STEMS
+            LAYER 2 — AUTOMATIC BEHIND-FLOWER LEAVES (Watercolor Foliage)
+           ══════════════════════════════════════════════════════════════════ */}
+        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 10 }}>
+          {automaticLeaves.map((leaf, idx) => (
+            <div
+              key={`bg-leaf-${idx}`}
+              style={{
+                position: 'absolute',
+                left: `${leaf.x}%`,
+                top: `${leaf.y}%`,
+                width: compact ? '24px' : '44px',
+                height: compact ? '24px' : '44px',
+                transform: `translate(-50%, -50%) rotate(${leaf.rotation}deg) scale(${leaf.scale})`,
+                opacity: 0.65,
+              }}
+            >
+              <FlowerAssetRenderer type={leaf.type} />
+            </div>
+          ))}
+        </div>
+
+        {/* ══════════════════════════════════════════════════════════════════
+            LAYER 3 — DYNAMIC BEZIER FLOWER STEMS (Converging to Ribbon neck)
+           ══════════════════════════════════════════════════════════════════ */}
+        <svg
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            pointerEvents: 'none',
+            zIndex: 12,
+          }}
+          aria-hidden
+        >
+          <defs>
+            <linearGradient id="stemGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#22c55e" />
+              <stop offset="50%" stopColor="#15803d" />
+              <stop offset="100%" stopColor="#14532d" />
+            </linearGradient>
+          </defs>
+          
+          {flowers.map((flower) => {
+            // Cap stem starting point at the flower head center
+            const yPct = Math.min(flower.y, 62);
+            
+            // Stems curve organically towards the cinch point (50, 58)
+            const cx = 50 + (flower.x - 50) * 0.45;
+            const cy = yPct + (58 - yPct) * 0.55;
+            
+            // Seeded random target Y for uneven, realistic stem cuts
+            const pseudoRandom = Math.sin(flower.x * 47.3 + flower.y * 19.8);
+            const baseTargetY = 84 + pseudoRandom * 3.5; // uneven cut length between 80.5% and 87.5%
+
+            // Lower fanned stem: extends from cinch point (50, 58) to fanned base
+            const fanSpread = (flower.x - 50) * 0.22;
+            const baseTargetX = 50 + fanSpread;
+            const baseCX = 50 + fanSpread * 0.5;
+            const baseCY = 71;
+
+            // Sprout midpoint coordinates
+            const mx = (flower.x + cx) / 2;
+            const my = (yPct + cy) / 2;
+            const isLeft = flower.x < 50;
+            const sproutDir = isLeft ? 1 : -1;
+
+            return (
+              <g key={`stem-${flower.id}`} opacity="0.82">
+                {/* ─── UPPER STEM (3D Layered Paths) ─── */}
+                {/* Dark bark shadow base */}
+                <path
+                  d={`M ${flower.x} ${yPct} Q ${cx} ${cy} 50 58`}
+                  fill="none"
+                  stroke="#0f2b09"
+                  strokeWidth={compact ? "1.4" : "2.6"}
+                  strokeLinecap="round"
+                />
+                {/* Main gradient stem */}
+                <path
+                  d={`M ${flower.x} ${yPct} Q ${cx} ${cy} 50 58`}
+                  fill="none"
+                  stroke="url(#stemGrad)"
+                  strokeWidth={compact ? "0.9" : "1.8"}
+                  strokeLinecap="round"
+                />
+                {/* Inner light-green highlight tube effect */}
+                <path
+                  d={`M ${flower.x} ${yPct} Q ${cx} ${cy} 50 58`}
+                  fill="none"
+                  stroke="#a7f3d0"
+                  strokeWidth={compact ? "0.3" : "0.55"}
+                  strokeLinecap="round"
+                  opacity="0.65"
+                />
+
+                {/* ─── ORGANIC SIDE LEAF SPROUT ─── */}
+                {/* Sprout stem */}
+                <path
+                  d={`M ${mx} ${my} Q ${mx + sproutDir * 3.5} ${my - 1} ${mx + sproutDir * 5} ${my - 3}`}
+                  fill="none"
+                  stroke="#166534"
+                  strokeWidth={compact ? "0.6" : "1.1"}
+                  strokeLinecap="round"
+                />
+                {/* Sprout watercolor leaf bud */}
+                <path
+                  d={`M ${mx + sproutDir * 5} ${my - 3} C ${mx + sproutDir * 6} ${my - 4.5}, ${mx + sproutDir * 5.5} ${my - 6.5}, ${mx + sproutDir * 3.5} ${my - 5.5} C ${mx + sproutDir * 2.5} ${my - 4.5}, ${mx + sproutDir * 3.5} ${my - 3.5}, ${mx + sproutDir * 5} ${my - 3}`}
+                  fill="#15803d"
+                  opacity="0.88"
+                />
+
+                {/* ─── LOWER GATHERED & FAN OUT STEMS (3D Layered Paths) ─── */}
+                {/* Lower shadow */}
+                <path
+                  d={`M 50 58 Q ${baseCX} ${baseCY} ${baseTargetX} ${baseTargetY}`}
+                  fill="none"
+                  stroke="#0f2a0b"
+                  strokeWidth={compact ? "1.6" : "2.8"}
+                  strokeLinecap="round"
+                />
+                {/* Lower green */}
+                <path
+                  d={`M 50 58 Q ${baseCX} ${baseCY} ${baseTargetX} ${baseTargetY}`}
+                  fill="none"
+                  stroke="#166534"
+                  strokeWidth={compact ? "1.0" : "1.9"}
+                  strokeLinecap="round"
+                />
+                {/* Lower highlight */}
+                <path
+                  d={`M 50 58 Q ${baseCX} ${baseCY} ${baseTargetX} ${baseTargetY}`}
+                  fill="none"
+                  stroke="#4ade80"
+                  strokeWidth={compact ? "0.3" : "0.5"}
+                  strokeLinecap="round"
+                  opacity="0.55"
+                />
+              </g>
+            );
+          })}
+        </svg>
+
+        {/* ══════════════════════════════════════════════════════════════════
+            LAYER 4 — FILLER ELEMENTS
+           ══════════════════════════════════════════════════════════════════ */}
+        {fillers.map((filler, fi) => {
+          const emojis = FILLER_EMOJI[filler] ?? ['✿'];
+          const count = compact ? Math.min(emojis.length, 3) : emojis.length + 3;
+          const positions = getFillerPositions(filler, count, fi);
+          return positions.map((pos, pi) => (
+            <div
+              key={`${filler}-${pi}`}
+              aria-hidden
+              style={{
+                position: 'absolute',
+                left: `${pos.x}%`,
+                top: `${pos.y}%`,
+                fontSize: FILLER_SIZE[filler],
+                transform: `rotate(${pos.rotation}deg)`,
+                color: FILLER_COLOR[filler],
+                opacity: fillerOpacity * (0.65 + seededRandom(fi * 37 + pi) * 0.35),
+                zIndex: 14,
+                pointerEvents: 'none',
+                userSelect: 'none',
+                lineHeight: 1,
+                textShadow: filler === 'small_fillers'
+                  ? `0 0 6px ${FILLER_COLOR[filler]}`
+                  : 'none',
+              }}
+            >
+              {emojis[pi % emojis.length]}
+            </div>
+          ));
+        })}
+
+        {/* ══════════════════════════════════════════════════════════════════
+            LAYER 5 — FLOWER HEADS
            ══════════════════════════════════════════════════════════════════ */}
         {flowers.map((flower) => {
           const isSelected = flower.id === selectedFlowerId;
           const isFoliageItem = ['leaf_green', 'leaf_fern', 'leaf_eucalyptus'].includes(flower.type);
           const bloomSize = getBloomSize(flower.type);
           
-          const widthStr = isFoliageItem ? (compact ? '1.7rem' : '2.7rem') : `${bloomSize}rem`;
-          const heightStr = isFoliageItem ? (compact ? '1.7rem' : '2.7rem') : (compact ? '7.5rem' : '13rem');
-          const halfWidthStr = isFoliageItem ? (compact ? '-0.85rem' : '-1.35rem') : `-${bloomSize / 2}rem`;
+          const sizeStr = isFoliageItem ? (compact ? '1.7rem' : '2.7rem') : `${bloomSize}rem`;
+          const halfSizeStr = isFoliageItem ? (compact ? '-0.85rem' : '-1.35rem') : `-${bloomSize / 2}rem`;
 
           return (
             <motion.div
@@ -450,10 +627,10 @@ export default function BouquetPreview({
                 position: 'absolute',
                 left: `${flower.x}%`,
                 top: `${flower.y}%`,
-                width: widthStr,
-                height: heightStr,
-                marginLeft: halfWidthStr,
-                marginTop: '-0.5rem',
+                width: sizeStr,
+                height: sizeStr,
+                marginLeft: halfSizeStr,
+                marginTop: halfSizeStr,
                 zIndex: isSelected ? 100 : flower.zIndex,
                 cursor: onFlowerDrag ? 'grab' : 'default',
                 userSelect: 'none',
@@ -462,8 +639,8 @@ export default function BouquetPreview({
                   : 'drop-shadow(0 3px 6px rgba(0,0,0,0.1))',
                 outline: isSelected ? '2px dashed #f43f5e' : 'none',
                 outlineOffset: '4px',
-                borderRadius: '8px',
-                backgroundColor: isSelected ? 'rgba(244,63,94,0.06)' : 'transparent',
+                borderRadius: '50%',
+                backgroundColor: isSelected ? 'rgba(244,63,94,0.06)' : isFoliageItem ? 'transparent' : 'rgba(255,255,255,0.04)',
                 padding: isSelected ? '4px' : '0px',
               }}
               whileHover={onFlowerDrag ? { scale: isSelected ? flower.scale * 1.24 : flower.scale * 1.12 } : {}}
@@ -549,35 +726,33 @@ export default function BouquetPreview({
         )}
 
         {/* ══════════════════════════════════════════════════════════════════
-            LAYER 7 — WATERCOLOR RIBBON BOW (Ties multiple flowers together)
+            LAYER 7 — WATERCOLOR RIBBON BOW (Placed precisely at cinch point)
            ══════════════════════════════════════════════════════════════════ */}
-        {flowers.length > 1 && (
-          <div
-            aria-label="Ribbon bow"
+        <div
+          aria-label="Ribbon bow"
+          style={{
+            position: 'absolute',
+            top: '58%', // exact cinch point Y
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            zIndex: 35,
+            width: compact ? 70 : 120,
+            height: compact ? 30 : 50,
+            pointerEvents: 'none',
+          }}
+        >
+          <img
+            src={`/assets/ribbons/ribbon-${ribbon}.png`}
+            alt={`${ribbon} ribbon`}
             style={{
-              position: 'absolute',
-              top: '58%', // exact cinch point Y
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              zIndex: 35,
-              width: compact ? 70 : 120,
-              height: compact ? 30 : 50,
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain',
               pointerEvents: 'none',
+              filter: 'drop-shadow(0 2.5px 2.5px rgba(0, 0, 0, 0.25))',
             }}
-          >
-            <img
-              src={`/assets/ribbons/ribbon-${ribbon === 'none' ? 'red' : ribbon}.png`}
-              alt={`${ribbon} ribbon`}
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'contain',
-                pointerEvents: 'none',
-                filter: 'drop-shadow(0 2.5px 2.5px rgba(0, 0, 0, 0.25))',
-              }}
-            />
-          </div>
-        )}
+          />
+        </div>
 
         {/* ══════════════════════════════════════════════════════════════════
             LAYER 8 — SPARKLE ACCENTS (non-compact only)
