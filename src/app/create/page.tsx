@@ -60,52 +60,54 @@ export default function CreatePage() {
           <div className="w-full max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             {/* Left Column: Live Preview & Arrangement Patterns */}
             <div className="lg:col-span-5 flex flex-col items-center p-6 bg-white rounded-3xl border border-rose-100/50 shadow-sm lg:sticky lg:top-6">
-              {/* Presets selection */}
-              <div className="w-full text-center mb-6">
-                <span className="text-xs font-semibold tracking-wider text-rose-400 uppercase block mb-3">
-                  Flower Arrangement
-                </span>
-                <div className="inline-flex rounded-full bg-rose-50/60 p-1 border border-rose-100">
-                  {[
-                    { id: 'dome', label: '🌸 Dome' },
-                    { id: 'heart', label: '❤️ Heart' },
-                    { id: 'cascade', label: '🌿 Cascade' },
-                  ].map((item) => {
-                    const isActive = store.arrangementPattern === item.id;
-                    return (
-                      <button
-                        key={item.id}
-                        onClick={() => store.setArrangementPattern(item.id as any)}
-                        className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-                          isActive
-                            ? 'bg-rose-500 text-white shadow-sm'
-                            : 'text-rose-700 hover:bg-rose-100/40'
-                        }`}
-                      >
-                        {item.label}
-                      </button>
-                    );
-                  })}
-                  {store.arrangementPattern === 'custom' && (
-                    <span className="px-4 py-1.5 rounded-full text-xs font-semibold bg-amber-500 text-white shadow-sm">
-                      ✨ Custom
-                    </span>
-                  )}
+              {/* Presets selection - Shown only on Step 2 (Flowers) */}
+              {currentStep === 2 && (
+                <div className="w-full text-center mb-6">
+                  <span className="text-xs font-semibold tracking-wider text-rose-400 uppercase block mb-3">
+                    Flower Arrangement
+                  </span>
+                  <div className="inline-flex rounded-full bg-rose-50/60 p-1 border border-rose-100">
+                    {[
+                      { id: 'dome', label: '🌸 Dome' },
+                      { id: 'heart', label: '❤️ Heart' },
+                      { id: 'cascade', label: '🌿 Cascade' },
+                    ].map((item) => {
+                      const isActive = store.arrangementPattern === item.id;
+                      return (
+                        <button
+                          key={item.id}
+                          onClick={() => store.setArrangementPattern(item.id as any)}
+                          className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                            isActive
+                              ? 'bg-rose-500 text-white shadow-sm'
+                              : 'text-rose-700 hover:bg-rose-100/40'
+                          }`}
+                        >
+                          {item.label}
+                        </button>
+                      );
+                    })}
+                    {store.arrangementPattern === 'custom' && (
+                      <span className="px-4 py-1.5 rounded-full text-xs font-semibold bg-amber-500 text-white shadow-sm">
+                        ✨ Custom
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex justify-center items-center gap-2 mt-2">
+                    <button
+                      type="button"
+                      onClick={() => store.setWrapping(store.wrapping === 'none' ? 'white' : 'none')}
+                      className={`px-3.5 py-1 rounded-full text-xs font-semibold border transition-all cursor-pointer ${
+                        store.wrapping === 'none'
+                          ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
+                          : 'bg-white text-stone-600 border-stone-200 hover:border-rose-300'
+                      }`}
+                    >
+                      {store.wrapping === 'none' ? '🌿 Bare Stems (No Wrap)' : '🎀 Paper Wrap On'}
+                    </button>
+                  </div>
                 </div>
-                <div className="flex justify-center items-center gap-2 mt-2">
-                  <button
-                    type="button"
-                    onClick={() => store.setWrapping(store.wrapping === 'none' ? 'white' : 'none')}
-                    className={`px-3.5 py-1 rounded-full text-xs font-semibold border transition-all cursor-pointer ${
-                      store.wrapping === 'none'
-                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
-                        : 'bg-white text-stone-600 border-stone-200 hover:border-rose-300'
-                    }`}
-                  >
-                    {store.wrapping === 'none' ? '🌿 Bare Stems (No Wrap)' : '🎀 Paper Wrap On'}
-                  </button>
-                </div>
-              </div>
+              )}
 
               {/* Live Bouquet Preview wrapper */}
               <div className="relative aspect-3/4 w-full max-w-70 flex justify-center items-center">

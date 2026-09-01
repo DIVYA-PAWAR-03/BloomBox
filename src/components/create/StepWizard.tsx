@@ -40,10 +40,10 @@ export default function StepWizard({ children, onNext, onPrev, nextLabel = 'Cont
   };
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden" style={{ background: 'var(--color-background, #faf6f0)' }}>
+    <div className="h-screen h-[100dvh] min-h-[100dvh] flex flex-col overflow-hidden relative" style={{ background: 'var(--color-background, #faf6f0)' }}>
       {/* Header */}
-      <header className="w-full px-6 py-4 flex items-center justify-between border-b border-rose-100/30 relative z-50"
-        style={{ background: 'rgba(250,246,240,0.9)', backdropFilter: 'blur(12px)', zIndex: 50 }}>
+      <header className="w-full px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between border-b border-rose-100/30 relative z-50 shrink-0"
+        style={{ background: 'rgba(250,246,240,0.95)', backdropFilter: 'blur(12px)', zIndex: 50 }}>
         <Link href="/" className="flex items-center gap-2 group">
           <div className="h-8 w-8 rounded-full bg-linear-to-tr from-rose-400 to-amber-300 flex items-center justify-center">
             <Heart className="h-4 w-4 text-white fill-white" />
@@ -61,7 +61,7 @@ export default function StepWizard({ children, onNext, onPrev, nextLabel = 'Cont
       </header>
 
       {/* Progress Steps */}
-      <div className="w-full px-4 py-4 border-b border-rose-100/20 overflow-x-auto">
+      <div className="w-full px-4 py-3 sm:py-4 border-b border-rose-100/20 overflow-x-auto shrink-0">
         <div className="flex items-center justify-center gap-0 min-w-max mx-auto">
           {STEPS.map((step, index) => {
             const isCompleted = currentStep > step.num;
@@ -129,7 +129,7 @@ export default function StepWizard({ children, onNext, onPrev, nextLabel = 'Cont
       </div>
 
       {/* Step Content */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto pb-24 sm:pb-8">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentStep}
@@ -144,16 +144,21 @@ export default function StepWizard({ children, onNext, onPrev, nextLabel = 'Cont
         </AnimatePresence>
       </div>
 
-      {/* Navigation Footer */}
-      <div className="sticky bottom-0 w-full px-6 py-4 flex items-center justify-between border-t border-rose-100/20 z-50"
-        style={{ background: 'rgba(250,246,240,0.95)', backdropFilter: 'blur(12px)', zIndex: 50 }}>
-        
+      {/* Navigation Footer - Sticky at bottom for mobile & desktop */}
+      <div
+        className="sticky bottom-0 left-0 right-0 w-full px-4 sm:px-6 py-3.5 sm:py-4 flex items-center justify-between border-t border-rose-100/30 z-50 shrink-0 shadow-[0_-4px_20px_rgba(0,0,0,0.06)]"
+        style={{
+          background: 'rgba(250,246,240,0.95)',
+          backdropFilter: 'blur(12px)',
+          paddingBottom: 'max(0.875rem, env(safe-area-inset-bottom, 0px))',
+        }}
+      >
         {!hidePrev && currentStep > 1 ? (
           <motion.button
             onClick={handlePrev}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.97 }}
-            className="flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-medium text-stone-600 border border-stone-200 hover:border-rose-200 hover:text-rose-500 transition-colors"
+            className="flex items-center gap-1.5 sm:gap-2 px-5 sm:px-6 py-2.5 rounded-full text-xs sm:text-sm font-medium text-stone-600 border border-stone-200 hover:border-rose-200 hover:text-rose-500 bg-white/80 transition-colors shadow-xs cursor-pointer"
           >
             <ChevronLeft className="h-4 w-4" />
             Back
@@ -167,10 +172,13 @@ export default function StepWizard({ children, onNext, onPrev, nextLabel = 'Cont
             onClick={handleNext}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.97 }}
-            className="flex items-center gap-2 px-8 py-2.5 rounded-full text-sm font-medium text-white shadow-md transition-all"
-            style={{ background: 'linear-gradient(135deg, #e11d48 0%, #f43f5e 100%)', boxShadow: '0 4px 20px rgba(225,29,72,0.25)' }}
+            className="flex items-center gap-2 px-6 sm:px-8 py-2.5 sm:py-3 rounded-full text-xs sm:text-sm font-semibold text-white shadow-md transition-all cursor-pointer"
+            style={{
+              background: 'linear-gradient(135deg, #e11d48 0%, #f43f5e 100%)',
+              boxShadow: '0 4px 20px rgba(225,29,72,0.3)',
+            }}
           >
-            {nextLabel}
+            <span>{nextLabel}</span>
             <ChevronRight className="h-4 w-4" />
           </motion.button>
         )}
