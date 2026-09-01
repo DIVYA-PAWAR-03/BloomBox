@@ -25,6 +25,7 @@ import type {
 import BouquetPreview from '@/components/create/BouquetPreview';
 import { arrangeFlowers } from '@/store/useBouquetStore';
 import EnvelopeUnboxer from '@/components/create/EnvelopeUnboxer';
+import ShareAttribution from '@/components/ShareAttribution';
 
 interface GiftData {
   bouquet_style: BouquetStyle;
@@ -308,7 +309,7 @@ export default function RecipientPage() {
                 onClick={() => setStage('open')}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="px-10 py-4 rounded-full text-white text-sm font-semibold shadow-lg transition-all"
+                className="px-10 py-4 rounded-full text-white text-sm font-semibold shadow-lg transition-all cursor-pointer"
                 style={{
                   background: 'linear-gradient(135deg, #e11d48 0%, #f43f5e 100%)',
                   boxShadow: '0 6px 20px rgba(225,29,72,0.25)',
@@ -384,6 +385,11 @@ export default function RecipientPage() {
                       senderName={gift.sender_name}
                       onComplete={() => setUnboxingFinished(true)}
                     />
+                  </div>
+
+                  {/* Retro Share & Attribution block directly under Letter section */}
+                  <div className="pt-2">
+                    <ShareAttribution />
                   </div>
                 </motion.div>
               </div>

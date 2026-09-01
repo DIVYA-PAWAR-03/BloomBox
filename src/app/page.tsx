@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Heart, ArrowRight } from 'lucide-react';
+import ShareAttribution from '@/components/ShareAttribution';
 
 const floatingPetals = [
   { id: 1, text: '🌸', x: '8%',  delay: 0,  duration: 22, size: '2rem' },
@@ -200,15 +201,10 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="relative z-10 w-full py-8 text-center text-xs text-stone-400 border-t"
-        style={{ borderColor: 'rgba(251,207,232,0.15)', background: 'rgba(255,255,255,0.3)' }}>
-        <div className="flex items-center justify-center gap-2 mb-2">
-          <Heart className="h-3.5 w-3.5 text-rose-400 fill-current" />
-          <span className="font-medium" style={{ fontFamily: 'var(--font-cormorant, serif)', color: '#7c6959', fontSize: '0.9rem' }}>
-            BloomBox
-          </span>
-        </div>
-        <p>© 2026 BloomBox — Send feelings, not just flowers.</p>
+      <footer className="relative z-10 w-full py-10 text-center border-t"
+        style={{ borderColor: 'rgba(251,207,232,0.25)', background: 'rgba(255,255,255,0.4)' }}>
+        <ShareAttribution />
+        <p className="text-[11px] text-stone-400 font-mono mt-4">© 2026 BloomBox — Send feelings, not just flowers.</p>
       </footer>
     </div>
   );

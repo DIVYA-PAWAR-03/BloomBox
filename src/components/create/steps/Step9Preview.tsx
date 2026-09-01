@@ -14,6 +14,7 @@ import {
   EXTRA_OPTIONS,
 } from '@/types/bouquet';
 import { Copy, Send, Mail, Heart, Check, Sparkles, Loader2, RefreshCw } from 'lucide-react';
+import ShareAttribution from '@/components/ShareAttribution';
 
 export default function Step9Preview() {
   const store = useBouquetStore();
@@ -254,7 +255,10 @@ export default function Step9Preview() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={handleCopy}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold bg-stone-900 text-white hover:bg-stone-800 transition-colors shrink-0"
+                    className="flex items-center gap-1.5 px-5 py-2.5 rounded-full text-xs font-semibold text-white shadow-md shadow-rose-200/50 transition-all cursor-pointer shrink-0"
+                    style={{
+                      background: 'linear-gradient(135deg, #e11d48 0%, #f43f5e 100%)',
+                    }}
                   >
                     {copied ? (
                       <>
@@ -321,12 +325,17 @@ export default function Step9Preview() {
                     >
                       <Mail className="h-5 w-5 text-white" />
                     </motion.a>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
-        </motion.div>
+              )}
+            </div>
+
+            {/* Retro Share & Attribution section (Always visible) */}
+            <div className="pt-2">
+              <ShareAttribution shareUrl={store.shareUrl || undefined} />
+            </div>
+          </motion.div>
       </div>
     </div>
   );
