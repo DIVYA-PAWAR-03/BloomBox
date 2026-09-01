@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, Music, Send } from 'lucide-react';
+import { Heart, Music } from 'lucide-react';
 import Link from 'next/link';
 import {
   WRAPPING_OPTIONS,
@@ -60,8 +60,6 @@ export default function RecipientPage() {
     { emoji: '💐', count: 0 },
   ]);
 
-  const [comment, setComment] = useState('');
-  const [comments, setComments] = useState<{ text: string; time: string }[]>([]);
   const [musicOn, setMusicOn] = useState(false);
   const normalizedFlowers = useMemo(() => {
     if (!gift?.flowers) return [];
@@ -193,12 +191,6 @@ export default function RecipientPage() {
     setReactions((r) =>
       r.map((item, i) => (i === idx ? { ...item, count: item.count + 1 } : item))
     );
-  };
-
-  const addComment = () => {
-    if (!comment.trim()) return;
-    setComments((c) => [...c, { text: comment.trim(), time: 'Just now' }]);
-    setComment('');
   };
 
   if (loading) {
@@ -433,65 +425,32 @@ export default function RecipientPage() {
                     </div>
                   </div>
 
-                  {/* Reply / Comment Box */}
-                  <div className="space-y-4">
-                    <h3 className="text-xs font-semibold tracking-wider text-stone-400 uppercase text-center">
-                      Leave a comment
-                    </h3>
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        value={comment}
-                        onChange={(e) => setComment(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && addComment()}
-                        placeholder="Write a sweet message back..."
-                        className="flex-1 rounded-full px-5 py-3 text-sm border border-stone-200 focus:border-rose-300 outline-none bg-white shadow-inner"
-                        style={{ fontFamily: 'var(--font-caveat, cursive)', fontSize: '18px' }}
-                      />
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={addComment}
-                        className="w-10 h-10 rounded-full flex items-center justify-center text-white cursor-pointer shadow-md"
-                        style={{ background: 'linear-gradient(135deg, #e11d48, #f43f5e)' }}
-                      >
-                        <Send className="h-4 w-4" />
-                      </motion.button>
+                  {/* Creator Info & Generate Gift Call-to-Action */}
+                  <div className="text-center p-6 bg-white/80 backdrop-blur-md rounded-3xl border border-rose-100/60 shadow-sm max-w-md mx-auto space-y-4">
+                    <div className="w-10 h-10 mx-auto rounded-full bg-rose-50 flex items-center justify-center text-rose-500">
+                      <Heart className="w-5 h-5 fill-rose-500 text-rose-500" />
+                    </div>
+                    
+                    <div>
+                      <p className="font-serif text-stone-500 text-sm italic">
+                        This virtual bouquet was created with love by
+                      </p>
+                      <p className="font-heading text-rose-900 text-xl font-bold mt-0.5" style={{ fontFamily: 'var(--font-cormorant, serif)' }}>
+                        {gift.sender_name ? gift.sender_name : 'Someone Special'}
+                      </p>
                     </div>
 
-                    {/* List of comments */}
-                    <div className="space-y-3 pt-2">
-                      {comments.map((c, i) => (
-                        <motion.div
-                          key={i}
-                          initial={{ opacity: 0, x: -16 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          className="bg-white rounded-2xl p-4 shadow-sm border border-stone-100"
-                        >
-                          <p className="text-stone-700" style={{ fontFamily: 'var(--font-caveat, cursive)', fontSize: '18px' }}>
-                            {c.text}
-                          </p>
-                          <span className="text-[10px] text-stone-400 block mt-1">
-                            {c.time}
-                          </span>
-                        </motion.div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Monospace elegant footer credit */}
-                  <div className="text-center pt-8 border-t border-rose-100/40">
-                    <p className="font-mono text-stone-400 text-xs leading-relaxed uppercase tracking-wider">
-                      made with BloomBox, a tool by Divya
-                    </p>
-                    <p className="mt-2">
+                    <div className="pt-3 border-t border-rose-100/60">
+                      <p className="text-stone-600 text-xs font-medium mb-3">
+                        Want to send a gift to someone special?
+                      </p>
                       <Link
-                        href="/"
-                        className="font-mono text-xs text-rose-500 hover:text-rose-600 font-bold uppercase tracking-widest underline decoration-2 underline-offset-4 decoration-rose-200 hover:decoration-rose-400 transition-colors"
+                        href="/create"
+                        className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-xs font-semibold text-white bg-linear-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 shadow-md shadow-rose-200/50 transition-all hover:scale-105 active:scale-95 cursor-pointer"
                       >
-                        create a bouquet now!
+                        <span>Create Your Own BloomBox Gift 💐</span>
                       </Link>
-                    </p>
+                    </div>
                   </div>
                 </motion.div>
               )}
