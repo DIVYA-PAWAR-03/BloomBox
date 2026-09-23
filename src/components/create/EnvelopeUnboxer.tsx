@@ -4,7 +4,6 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LETTER_TEMPLATES, ENVELOPE_OPTIONS } from '@/types/bouquet';
 import type { EnvelopeStyle, LetterTemplate } from '@/types/bouquet';
-import { Download } from 'lucide-react';
 
 interface EnvelopeUnboxerProps {
   envelope: EnvelopeStyle;
@@ -13,6 +12,8 @@ interface EnvelopeUnboxerProps {
   message: string;
   senderName: string;
   onComplete?: () => void;
+  /** Called once the download handler is ready — parent can store it and invoke it from outside */
+  onDownloadReady?: (handler: () => Promise<void>, isDownloading: boolean) => void;
 }
 
 export default function EnvelopeUnboxer({
@@ -22,6 +23,7 @@ export default function EnvelopeUnboxer({
   message,
   senderName,
   onComplete,
+  onDownloadReady,
 }: EnvelopeUnboxerProps) {
   // Stages: 'closed' | 'opening' | 'sliding' | 'open'
   const [stage, setStage] = useState<'closed' | 'opening' | 'sliding' | 'open'>('closed');
@@ -113,6 +115,14 @@ export default function EnvelopeUnboxer({
       setIsDownloading(false);
     }
   }, [isDownloading, templateDef.bgColor, recipientName, senderName]);
+
+  // Expose download handler to parent whenever it changes
+  useEffect(() => {
+    if (onDownloadReady) {
+      onDownloadReady(handleDownloadPDF, isDownloading);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [handleDownloadPDF, isDownloading]);
 
   return (
     <div className="w-full flex flex-col items-center justify-center space-y-6 min-h-[300px]">
@@ -235,31 +245,7 @@ export default function EnvelopeUnboxer({
               </div>
             </div>
 
-            {/* ── Download PDF Button ── always visible once letter is open */}
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: typingDone ? 1 : 0.45, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="w-full flex flex-col items-center gap-2"
-            >
-              <motion.button
-                onClick={handleDownloadPDF}
-                disabled={isDownloading}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full text-sm font-bold text-white shadow-xl cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed select-none"
-                style={{
-                  background: 'linear-gradient(135deg, #e11d48 0%, #f43f5e 60%, #fb7185 100%)',
-                  boxShadow: '0 8px 24px rgba(225,29,72,0.35)',
-                }}
-              >
-                <Download className="w-4 h-4" />
-                {isDownloading ? 'Preparing PDF…' : '📄 Download Letter as PDF'}
-              </motion.button>
-              {!typingDone && (
-                <p className="text-xs text-stone-400 italic">Letter is loading… button will be active when done</p>
-              )}
-            </motion.div>
+
           </motion.div>
         )}
       </AnimatePresence>

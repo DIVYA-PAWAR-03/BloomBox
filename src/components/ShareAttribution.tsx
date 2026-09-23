@@ -2,13 +2,18 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { Download } from 'lucide-react';
 
 interface ShareAttributionProps {
   shareUrl?: string;
   className?: string;
+  /** Handler to trigger letter PDF download — provided by EnvelopeUnboxer once the letter is open */
+  onDownloadLetter?: () => Promise<void>;
+  /** Whether the PDF is currently being generated */
+  isLetterDownloading?: boolean;
 }
 
-export default function ShareAttribution({ shareUrl, className = '' }: ShareAttributionProps) {
+export default function ShareAttribution({ shareUrl, className = '', onDownloadLetter, isLetterDownloading = false }: ShareAttributionProps) {
   const [copied, setCopied] = useState(false);
 
   const getTargetUrl = () => {
@@ -71,6 +76,31 @@ export default function ShareAttribution({ shareUrl, className = '' }: ShareAttr
         >
           SHARE
         </button>
+      </div>
+
+      {/* Download Letter Button — always visible, activates once letter is opened */}
+      <div className="flex flex-col items-center gap-1.5">
+        <button
+          type="button"
+          onClick={onDownloadLetter ?? undefined}
+          disabled={!onDownloadLetter || isLetterDownloading}
+          className="inline-flex items-center gap-2 px-7 py-2.5 rounded-full text-sm font-bold transition-all select-none"
+          style={{
+            background: onDownloadLetter
+              ? 'linear-gradient(135deg, #e11d48 0%, #f43f5e 60%, #fb7185 100%)'
+              : 'linear-gradient(135deg, #fda4af 0%, #fecdd3 100%)',
+            color: '#ffffff',
+            boxShadow: onDownloadLetter ? '0 6px 20px rgba(225,29,72,0.30)' : 'none',
+            cursor: onDownloadLetter && !isLetterDownloading ? 'pointer' : 'not-allowed',
+            opacity: isLetterDownloading ? 0.7 : 1,
+          }}
+        >
+          <Download className="w-4 h-4" />
+          {isLetterDownloading ? 'Preparing PDF…' : '📄 Download Letter as PDF'}
+        </button>
+        {!onDownloadLetter && (
+          <p className="text-[11px] text-stone-400 italic">Open the letter first to enable download</p>
+        )}
       </div>
 
       {/* Attribution Text Block */}

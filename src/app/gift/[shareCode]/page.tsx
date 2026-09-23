@@ -52,6 +52,8 @@ export default function RecipientPage() {
   // Flow stages: 'welcome' | 'open'
   const [stage, setStage] = useState<'welcome' | 'open'>('welcome');
   const [unboxingFinished, setUnboxingFinished] = useState(false);
+  const [downloadLetterFn, setDownloadLetterFn] = useState<(() => Promise<void>) | null>(null);
+  const [isLetterDownloading, setIsLetterDownloading] = useState(false);
 
   const [reactions, setReactions] = useState<{ emoji: string; count: number }[]>([
     { emoji: '❤️', count: 0 },
@@ -384,12 +386,19 @@ export default function RecipientPage() {
                       message={gift.message}
                       senderName={gift.sender_name}
                       onComplete={() => setUnboxingFinished(true)}
+                      onDownloadReady={(fn, downloading) => {
+                        setDownloadLetterFn(() => fn);
+                        setIsLetterDownloading(downloading);
+                      }}
                     />
                   </div>
 
                   {/* Retro Share & Attribution block directly under Letter section */}
                   <div className="pt-2">
-                    <ShareAttribution />
+                    <ShareAttribution
+                      onDownloadLetter={downloadLetterFn ?? undefined}
+                      isLetterDownloading={isLetterDownloading}
+                    />
                   </div>
                 </motion.div>
               </div>
